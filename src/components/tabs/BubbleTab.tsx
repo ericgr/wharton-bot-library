@@ -108,45 +108,60 @@ export const BubbleTab = ({ config, updateConfig }: BubbleTabProps) => {
       </div>
 
       <div>
-        <Label className="text-sm font-medium mb-2 block">
-          Bubble Size (px): {config.bubbleSize}
-        </Label>
-        <Slider
-          value={[config.bubbleSize]}
-          onValueChange={([value]) => updateConfig({ bubbleSize: value })}
-          max={100}
+        <Label className="text-sm font-medium mb-2 block">Bubble Size (px)</Label>
+        <Input
+          type="number"
+          value={config.bubbleSize}
+          onChange={(e) => {
+            const value = parseInt(e.target.value);
+            if (!isNaN(value) && value >= 30 && value <= 100) {
+              updateConfig({ bubbleSize: value });
+            }
+          }}
           min={30}
-          step={1}
+          max={100}
           className="w-full"
+          placeholder="50"
         />
+        <p className="text-xs text-muted-foreground mt-1">Range: 30-100 pixels</p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label className="text-sm font-medium mb-2 block">
-            Right Position (px): {config.rightPosition}
-          </Label>
-          <Slider
-            value={[config.rightPosition]}
-            onValueChange={([value]) => updateConfig({ rightPosition: value })}
-            max={100}
+          <Label className="text-sm font-medium mb-2 block">Right Position (px)</Label>
+          <Input
+            type="number"
+            value={config.rightPosition}
+            onChange={(e) => {
+              const value = parseInt(e.target.value);
+              if (!isNaN(value) && value >= 0 && value <= 100) {
+                updateConfig({ rightPosition: value });
+              }
+            }}
             min={0}
-            step={1}
+            max={100}
             className="w-full"
+            placeholder="20"
           />
+          <p className="text-xs text-muted-foreground mt-1">Range: 0-100 pixels</p>
         </div>
         <div>
-          <Label className="text-sm font-medium mb-2 block">
-            Bottom Position (px): {config.bottomPosition}
-          </Label>
-          <Slider
-            value={[config.bottomPosition]}
-            onValueChange={([value]) => updateConfig({ bottomPosition: value })}
-            max={100}
+          <Label className="text-sm font-medium mb-2 block">Bottom Position (px)</Label>
+          <Input
+            type="number"
+            value={config.bottomPosition}
+            onChange={(e) => {
+              const value = parseInt(e.target.value);
+              if (!isNaN(value) && value >= 0 && value <= 100) {
+                updateConfig({ bottomPosition: value });
+              }
+            }}
             min={0}
-            step={1}
+            max={100}
             className="w-full"
+            placeholder="20"
           />
+          <p className="text-xs text-muted-foreground mt-1">Range: 0-100 pixels</p>
         </div>
       </div>
 
@@ -160,18 +175,22 @@ export const BubbleTab = ({ config, updateConfig }: BubbleTabProps) => {
 
       {config.autoOpenBot && (
         <div>
-          <Label className="text-sm font-medium mb-2 block">
-            Open Delay (seconds): {config.openDelay}
-          </Label>
-          <Slider
-            value={[config.openDelay]}
-            onValueChange={([value]) => updateConfig({ openDelay: value })}
-            max={10}
+          <Label className="text-sm font-medium mb-2 block">Open Delay (seconds)</Label>
+          <Input
+            type="number"
+            value={config.openDelay}
+            onChange={(e) => {
+              const value = parseInt(e.target.value);
+              if (!isNaN(value) && value >= 1 && value <= 10) {
+                updateConfig({ openDelay: value });
+              }
+            }}
             min={1}
-            step={1}
+            max={10}
             className="w-full"
+            placeholder="3"
           />
-          <p className="text-xs text-muted-foreground mt-1">Minimum: 1 second</p>
+          <p className="text-xs text-muted-foreground mt-1">Range: 1-10 seconds</p>
         </div>
       )}
     </div>
