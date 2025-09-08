@@ -83,7 +83,7 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
   console.log("Bubble style:", getBubbleStyle());
   
   return (
-    <div className="fixed inset-0 pointer-events-none z-50">
+    <div className="fixed inset-0 pointer-events-none z-[9999]">
 
       {/* Chatbot tooltip */}
       {config.showTooltip && showTooltip && !isOpen && (
