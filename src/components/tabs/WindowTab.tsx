@@ -71,38 +71,38 @@ export const WindowTab = ({ config, updateConfig }: WindowTabProps) => {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label className="text-sm font-medium mb-2 block">Avatar Size</Label>
-          <Input
-            type="number"
-            value={config.avatarSize}
-            onChange={(e) => updateConfig({ avatarSize: parseInt(e.target.value) || 24 })}
+          <Label className="text-sm font-medium mb-2 block">Avatar Size: {config.avatarSize}px</Label>
+          <Slider
+            value={[config.avatarSize]}
+            onValueChange={([value]) => updateConfig({ avatarSize: value })}
             min={10}
             max={50}
-            className="w-full"
+            step={1}
+            className="mt-2"
           />
         </div>
         <div>
-          <Label className="text-sm font-medium mb-2 block">Avatar Border Radius</Label>
-          <Input
-            type="number"
-            value={config.avatarBorderRadius}
-            onChange={(e) => updateConfig({ avatarBorderRadius: parseInt(e.target.value) || 0 })}
+          <Label className="text-sm font-medium mb-2 block">Avatar Border Radius: {config.avatarBorderRadius}px</Label>
+          <Slider
+            value={[config.avatarBorderRadius]}
+            onValueChange={([value]) => updateConfig({ avatarBorderRadius: value })}
             min={0}
             max={25}
-            className="w-full"
+            step={1}
+            className="mt-2"
           />
         </div>
       </div>
 
       <div>
-        <Label className="text-sm font-medium mb-2 block">Message Border Radius</Label>
-        <Input
-          type="number"
-          value={config.messageBorderRadius}
-          onChange={(e) => updateConfig({ messageBorderRadius: parseInt(e.target.value) || 0 })}
+        <Label className="text-sm font-medium mb-2 block">Message Border Radius: {config.messageBorderRadius}px</Label>
+        <Slider
+          value={[config.messageBorderRadius]}
+          onValueChange={([value]) => updateConfig({ messageBorderRadius: value })}
           min={0}
           max={25}
-          className="w-full"
+          step={1}
+          className="mt-2"
         />
       </div>
 

@@ -15,6 +15,7 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
     { id: 1, text: config.welcomeMessage, isBot: true }
   ]);
   const [inputValue, setInputValue] = useState("");
+  const [showCharacterWarning, setShowCharacterWarning] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Auto-open functionality
@@ -35,9 +36,16 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
   const sendMessage = () => {
     if (!inputValue.trim()) return;
     
+    if (inputValue.length > config.maxCharacters) {
+      setShowCharacterWarning(true);
+      setTimeout(() => setShowCharacterWarning(false), 3000);
+      return;
+    }
+    
     const newMessage = { id: Date.now(), text: inputValue, isBot: false };
     setMessages(prev => [...prev, newMessage]);
     setInputValue("");
+    setShowCharacterWarning(false);
     
     // Simulate bot response
     setTimeout(() => {
@@ -170,6 +178,13 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
                   <X size={16} />
                 </button>
               </div>
+            </div>
+          )}
+
+          {/* Character Warning */}
+          {showCharacterWarning && (
+            <div className="p-3 bg-red-50 border border-red-200 mx-3 mt-3 rounded-md">
+              <p className="text-red-600 text-sm font-medium">{config.maxCharactersWarning}</p>
             </div>
           )}
 
