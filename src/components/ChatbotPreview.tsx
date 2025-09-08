@@ -79,6 +79,9 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
     fontSize: `${config.fontSize}px`,
   });
 
+  console.log("ChatbotPreview rendering with config:", config);
+  console.log("Bubble style:", getBubbleStyle());
+  
   return (
     <div className="fixed inset-0 pointer-events-none z-50">
 
@@ -212,8 +215,12 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
 
       {/* Chat bubble */}
       <button
-        className="fixed z-50 flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-105 pointer-events-auto"
-        style={getBubbleStyle()}
+        className="fixed z-[9999] flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-105 pointer-events-auto border-4 border-red-500"
+        style={{
+          ...getBubbleStyle(),
+          display: 'block',
+          visibility: 'visible'
+        }}
         onClick={toggleChat}
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
@@ -235,6 +242,14 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
           />
         )}
       </button>
+
+      {/* Debug indicator */}
+      <div 
+        className="fixed top-4 left-4 bg-red-500 text-white px-2 py-1 text-xs z-50 pointer-events-none"
+        style={{ display: 'block' }}
+      >
+        ChatBot Component Active
+      </div>
     </div>
   );
 };
