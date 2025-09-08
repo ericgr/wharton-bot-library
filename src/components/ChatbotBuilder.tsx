@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ChevronRight, Code2, Settings, Copy, Check } from "lucide-react";
+import { ChevronRight, Code2, Settings, Copy, Check, MessageSquare } from "lucide-react";
 import { BubbleTab } from "./tabs/BubbleTab";
 import { TooltipTab } from "./tabs/TooltipTab";
 import { WindowTab } from "./tabs/WindowTab";
@@ -118,9 +118,18 @@ Chatbot.init({
               </div>
             </div>
 
-            {/* Preview Panel */}
+            {/* Live Preview Instructions */}
             <div className="lg:sticky lg:top-8">
-              <ChatbotPreview config={config} />
+              <div className="bg-card/50 backdrop-blur-sm border rounded-lg p-6 text-center">
+                <MessageSquare className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="font-semibold mb-2">Live Chatbot Preview</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Your chatbot is now live on this page! Changes you make will update the chatbot in real-time.
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Look for the chat bubble in the bottom-right corner of your screen. You can interact with it just like your users will.
+                </p>
+              </div>
             </div>
           </div>
         ) : (
