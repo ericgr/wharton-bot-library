@@ -1,0 +1,194 @@
+import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ChevronRight, Code2, Settings, Copy, Check } from "lucide-react";
+import { BubbleTab } from "./tabs/BubbleTab";
+import { TooltipTab } from "./tabs/TooltipTab";
+import { WindowTab } from "./tabs/WindowTab";
+import { FooterTab } from "./tabs/FooterTab";
+import { AdvancedTab } from "./tabs/AdvancedTab";
+import { ChatbotPreview } from "./ChatbotPreview";
+import { useChatbotConfig } from "@/hooks/useChatbotConfig";
+
+export const ChatbotBuilder = () => {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [copied, setCopied] = useState(false);
+  const { config, updateConfig } = useChatbotConfig();
+
+  const handleCopyCode = () => {
+    const embedCode = `<script type="module" defer>
+import Chatbot from "https://cdn.n8nchatui.com/v1/embed.js";
+Chatbot.init({
+  "n8nChatUrl": "${config.webhookUrl || 'YOUR_N8N_CHAT_TRIGGER_NODE_WEBHOOK_URL'}",
+  "metadata": {},
+  "theme": ${JSON.stringify(config, null, 2)}
+});
+</script>`;
+    
+    navigator.clipboard.writeText(embedCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-muted/30 to-background">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            Chatbot Configuration Tool
+          </h1>
+          <p className="text-muted-foreground">
+            Create and customize your embeddable chatbot widget
+          </p>
+        </div>
+
+        {/* Step Progress */}
+        <div className="flex items-center gap-4 mb-8">
+          <div className="flex items-center gap-2">
+            <Badge variant={currentStep === 1 ? "default" : "secondary"} className="px-3 py-1">
+              STEP 1
+            </Badge>
+            <span className={`font-medium ${currentStep === 1 ? 'text-foreground' : 'text-muted-foreground'}`}>
+              Customize
+            </span>
+          </div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          <div className="flex items-center gap-2">
+            <Badge variant={currentStep === 2 ? "default" : "secondary"} className="px-3 py-1">
+              STEP 2
+            </Badge>
+            <span className={`font-medium ${currentStep === 2 ? 'text-foreground' : 'text-muted-foreground'}`}>
+              Embed Code
+            </span>
+          </div>
+        </div>
+
+        {currentStep === 1 ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Configuration Panel */}
+            <div className="space-y-6">
+              <Card className="shadow-lg border-0 bg-card/50 backdrop-blur-sm">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-2 text-xl">
+                    <Settings className="h-5 w-5" />
+                    Customize Your Chatbot
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Tabs defaultValue="bubble" className="w-full">
+                    <TabsList className="grid w-full grid-cols-5 mb-6">
+                      <TabsTrigger value="bubble" className="text-xs">Bubble</TabsTrigger>
+                      <TabsTrigger value="tooltip" className="text-xs">Tooltip</TabsTrigger>
+                      <TabsTrigger value="window" className="text-xs">Window</TabsTrigger>
+                      <TabsTrigger value="footer" className="text-xs">Footer</TabsTrigger>
+                      <TabsTrigger value="advanced" className="text-xs">Advanced</TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="bubble" className="space-y-4">
+                      <BubbleTab config={config} updateConfig={updateConfig} />
+                    </TabsContent>
+
+                    <TabsContent value="tooltip" className="space-y-4">
+                      <TooltipTab config={config} updateConfig={updateConfig} />
+                    </TabsContent>
+
+                    <TabsContent value="window" className="space-y-4">
+                      <WindowTab config={config} updateConfig={updateConfig} />
+                    </TabsContent>
+
+                    <TabsContent value="footer" className="space-y-4">
+                      <FooterTab config={config} updateConfig={updateConfig} />
+                    </TabsContent>
+
+                    <TabsContent value="advanced" className="space-y-4">
+                      <AdvancedTab config={config} updateConfig={updateConfig} />
+                    </TabsContent>
+                  </Tabs>
+                </CardContent>
+              </Card>
+
+              <div className="flex justify-end">
+                <Button onClick={() => setCurrentStep(2)} className="px-8">
+                  Next: Embed Code
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Preview Panel */}
+            <div className="lg:sticky lg:top-8">
+              <ChatbotPreview config={config} />
+            </div>
+          </div>
+        ) : (
+          <div className="max-w-4xl mx-auto">
+            <Card className="shadow-xl border-0 bg-card/50 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-xl">
+                  <Code2 className="h-5 w-5" />
+                  Embed Code
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div>
+                  <h3 className="font-semibold mb-3">Add Script to Body</h3>
+                  <div className="bg-muted/50 rounded-lg p-4 border">
+                    <div className="flex items-start gap-3 p-3 bg-warning/10 border border-warning/20 rounded-md mb-4">
+                      <div className="w-5 h-5 bg-warning rounded-full flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-medium text-sm">Important</p>
+                        <p className="text-sm text-muted-foreground">
+                          Make sure to replace <code className="bg-muted px-1 rounded">n8nChatUrl</code> with your own chat trigger node's webhook URL from n8n
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="relative">
+                      <pre className="bg-slate-900 text-green-400 p-4 rounded-lg text-sm overflow-auto max-h-96">
+{`<script type="module" defer>
+import Chatbot from "https://cdn.n8nchatui.com/v1/embed.js";
+Chatbot.init({
+  "n8nChatUrl": "${config.webhookUrl || 'YOUR_N8N_CHAT_TRIGGER_NODE_WEBHOOK_URL'}",
+  "metadata": {},
+  "theme": ${JSON.stringify(config, null, 2)}
+});
+</script>`}
+                      </pre>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={handleCopyCode}
+                        className="absolute top-3 right-3"
+                      >
+                        {copied ? (
+                          <>
+                            <Check className="h-4 w-4 mr-2" />
+                            Copied!
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="h-4 w-4 mr-2" />
+                            Copy
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <Button variant="outline" onClick={() => setCurrentStep(1)}>
+                    Back to Customize
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
