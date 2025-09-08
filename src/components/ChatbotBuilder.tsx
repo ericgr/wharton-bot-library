@@ -185,8 +185,11 @@ Chatbot.init({
                         )}
                       </Button>
                     </div>
-                  </div>
-                </div>
+      </div>
+      
+      {/* Render the live chatbot */}
+      <ChatbotPreview config={config} />
+    </div>
 
                 <div className="flex gap-4">
                   <Button variant="outline" onClick={() => setCurrentStep(1)}>
