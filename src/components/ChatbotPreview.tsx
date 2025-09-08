@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MessageSquare, Send, X, RotateCcw, ChevronDown } from "lucide-react";
+import { MessageSquare, Send, X, RotateCcw, ChevronDown, Copy } from "lucide-react";
 import { ChatbotConfig } from "@/hooks/useChatbotConfig";
 
 interface ChatbotPreviewProps {
@@ -15,6 +15,7 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
     { id: 1, text: config.welcomeMessage, isBot: true }
   ]);
   const [inputValue, setInputValue] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Auto-open functionality
   useEffect(() => {
@@ -54,8 +55,20 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
   };
 
   const toggleChat = () => {
-    setIsOpen(!isOpen);
+    const newIsOpen = !isOpen;
+    setIsOpen(newIsOpen);
     setShowTooltip(false);
+    
+    // Auto focus input when opening and auto focus is enabled
+    if (newIsOpen && config.autoFocusInput) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
   };
 
   const getBubbleStyle = () => {
@@ -165,22 +178,65 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
+                className={`flex ${message.isBot ? 'justify-start' : 'justify-end'} items-start gap-2`}
               >
-                <div
-                  className="max-w-[80%] px-3 py-2 text-sm"
-                  style={{
-                    backgroundColor: message.isBot 
-                      ? config.botMessageBackgroundColor 
-                      : config.userMessageBackgroundColor,
-                    color: message.isBot 
-                      ? config.botMessageTextColor 
-                      : config.userMessageTextColor,
-                    borderRadius: `${config.messageBorderRadius}px`,
-                  }}
-                >
-                  {message.text}
+                {/* Bot avatar (left side) */}
+                {message.isBot && config.showBotAvatar && config.botAvatarUrl && (
+                  <img 
+                    src={config.botAvatarUrl} 
+                    alt="Bot"
+                    style={{ 
+                      width: `${config.avatarSize}px`, 
+                      height: `${config.avatarSize}px`,
+                      borderRadius: `${config.avatarBorderRadius}px`,
+                      flexShrink: 0
+                    }}
+                  />
+                )}
+                
+                <div className={`flex flex-col ${message.isBot ? 'items-start' : 'items-end'} max-w-[80%]`}>
+                  <div className="relative group">
+                    <div
+                      className="px-3 py-2 text-sm"
+                      style={{
+                        backgroundColor: message.isBot 
+                          ? config.botMessageBackgroundColor 
+                          : config.userMessageBackgroundColor,
+                        color: message.isBot 
+                          ? config.botMessageTextColor 
+                          : config.userMessageTextColor,
+                        borderRadius: `${config.messageBorderRadius}px`,
+                      }}
+                    >
+                      {message.text}
+                    </div>
+                    
+                    {/* Copy to clipboard for bot messages */}
+                    {message.isBot && config.showCopyToClipboard && (
+                      <button
+                        onClick={() => copyToClipboard(message.text)}
+                        className="absolute -right-8 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded"
+                        title="Copy to clipboard"
+                      >
+                        <Copy size={14} />
+                      </button>
+                    )}
+                  </div>
                 </div>
+                
+                {/* User avatar (right side) */}
+                {!message.isBot && config.showUserAvatar && config.userAvatarUrl && (
+                  <img 
+                    src={config.userAvatarUrl} 
+                    alt="User"
+                    style={{ 
+                      width: `${config.avatarSize}px`, 
+                      height: `${config.avatarSize}px`,
+                      borderRadius: `${config.avatarBorderRadius}px`,
+                      flexShrink: 0
+                    }}
+                  />
+                )}
               </div>
             ))}
           </div>
@@ -211,21 +267,26 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
           <div className="p-3 border-t bg-white">
             <div className="flex gap-2">
               <Input
+                ref={inputRef}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                placeholder="Type your message..."
+                placeholder={config.placeholderText}
                 className="flex-1 text-sm"
                 style={{
                   backgroundColor: config.textInputBackgroundColor,
                   color: config.textInputTextColor,
+                  borderRadius: `${config.textInputBorderRadius}px`,
                 }}
                 maxLength={config.maxCharacters}
               />
               <Button 
                 size="sm" 
                 onClick={sendMessage}
-                style={{ backgroundColor: config.sendButtonColor }}
+                style={{ 
+                  backgroundColor: config.sendButtonColor,
+                  borderRadius: `${config.sendButtonBorderRadius}px`,
+                }}
               >
                 <Send className="h-4 w-4" />
               </Button>

@@ -371,14 +371,13 @@ export const WindowTab = ({ config, updateConfig }: WindowTabProps) => {
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-4 space-y-4">
           <div>
-            <Label className="text-sm font-medium mb-2 block">Border Radius (px)</Label>
-            <Input
-              type="number"
-              value={config.textInputBorderRadius}
-              onChange={(e) => updateConfig({ textInputBorderRadius: parseInt(e.target.value) || 0 })}
-              min={0}
+            <Label className="text-sm font-medium mb-2 block">Border Radius: {config.textInputBorderRadius}px</Label>
+            <Slider
+              value={[config.textInputBorderRadius]}
+              onValueChange={([value]) => updateConfig({ textInputBorderRadius: value })}
               max={50}
-              className="w-full"
+              step={1}
+              className="mt-2"
             />
           </div>
           
@@ -416,14 +415,13 @@ export const WindowTab = ({ config, updateConfig }: WindowTabProps) => {
           </div>
           
           <div>
-            <Label className="text-sm font-medium mb-2 block">Send Button Border Radius (px)</Label>
-            <Input
-              type="number"
-              value={config.sendButtonBorderRadius}
-              onChange={(e) => updateConfig({ sendButtonBorderRadius: parseInt(e.target.value) || 0 })}
-              min={0}
+            <Label className="text-sm font-medium mb-2 block">Send Button Border Radius: {config.sendButtonBorderRadius}px</Label>
+            <Slider
+              value={[config.sendButtonBorderRadius]}
+              onValueChange={([value]) => updateConfig({ sendButtonBorderRadius: value })}
               max={50}
-              className="w-full"
+              step={1}
+              className="mt-2"
             />
           </div>
           
