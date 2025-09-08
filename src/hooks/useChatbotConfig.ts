@@ -7,7 +7,7 @@ export interface ChatbotConfig {
   customIconUrl: string;
   customIconSize: number;
   customIconBorderRadius: number;
-  internalIconColor: string;
+  titleTextColor: string;
   bubbleSize: number;
   rightPosition: number;
   bottomPosition: number;
@@ -67,7 +67,7 @@ const defaultConfig: ChatbotConfig = {
   customIconUrl: "https://www.svgrepo.com/show/235143/customer-service-24-hours.svg",
   customIconSize: 86,
   customIconBorderRadius: 18,
-  internalIconColor: "#dceae8",
+  titleTextColor: "#ffffff",
   bubbleSize: 50,
   rightPosition: 20,
   bottomPosition: 20,

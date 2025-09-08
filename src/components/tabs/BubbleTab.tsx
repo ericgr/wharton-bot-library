@@ -83,10 +83,10 @@ export const BubbleTab = ({ config, updateConfig }: BubbleTabProps) => {
       </div>
 
       <div>
-        <Label className="text-sm font-medium mb-2 block">Color of Internal Icons</Label>
+        <Label className="text-sm font-medium mb-2 block">Color of Title Text</Label>
         <ColorPicker
-          value={config.internalIconColor}
-          onChange={(value) => updateConfig({ internalIconColor: value })}
+          value={config.titleTextColor}
+          onChange={(value) => updateConfig({ titleTextColor: value })}
         />
       </div>
 

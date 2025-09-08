@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MessageSquare, Send, X } from "lucide-react";
+import { MessageSquare, Send, X, RotateCcw } from "lucide-react";
 import { ChatbotConfig } from "@/hooks/useChatbotConfig";
 
 interface ChatbotPreviewProps {
@@ -49,6 +49,10 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
     }, 1000);
   };
 
+  const clearChat = () => {
+    setMessages([{ id: 1, text: config.welcomeMessage, isBot: true }]);
+  };
+
   const toggleChat = () => {
     setIsOpen(!isOpen);
     setShowTooltip(false);
@@ -57,7 +61,7 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
   const getBubbleStyle = () => {
     const borderRadius = 
       config.borderRadiusStyle === "circle" ? "50%" :
-      config.borderRadiusStyle === "rounded" ? "12px" : "0px";
+      config.borderRadiusStyle === "rounded" ? `${config.customIconBorderRadius}px` : "0px";
     
     return {
       width: `${config.bubbleSize}px`,
@@ -118,11 +122,27 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
         >
           {/* Header */}
           {config.showTitleSection && (
-            <div className="flex items-center justify-between p-3 border-b bg-white">
+            <div 
+              className="flex items-center justify-between p-3 border-b"
+              style={{ backgroundColor: config.backgroundColor, color: config.titleTextColor }}
+            >
               <span className="font-medium text-sm">{config.titleText}</span>
-              <Button size="sm" variant="ghost" onClick={toggleChat}>
-                <X className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={clearChat}
+                  className="hover:opacity-70 transition-opacity p-1"
+                  style={{ color: config.titleTextColor }}
+                >
+                  <RotateCcw size={16} />
+                </button>
+                <button
+                  onClick={toggleChat}
+                  className="hover:opacity-70 transition-opacity p-1"
+                  style={{ color: config.titleTextColor }}
+                >
+                  <X size={16} />
+                </button>
+              </div>
             </div>
           )}
 
@@ -215,7 +235,7 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
 
       {/* Chat bubble */}
       <button
-        className="fixed z-[9999] flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-105 pointer-events-auto border-4 border-red-500"
+        className="fixed z-[9999] flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-105 pointer-events-auto"
         style={{
           ...getBubbleStyle(),
           display: 'block',
@@ -229,27 +249,19 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
           <img 
             src={config.customIconUrl} 
             alt="Chat"
-            className="w-3/4 h-3/4 object-contain"
             style={{ 
-              borderRadius: `${config.customIconBorderRadius}px`,
+              width: `${config.customIconSize}%`, 
+              height: `${config.customIconSize}%`,
               filter: `invert(1)` // This simulates the icon color change
             }}
           />
         ) : (
           <MessageSquare 
             className="w-3/4 h-3/4" 
-            style={{ color: config.internalIconColor }}
+            style={{ color: config.titleTextColor }}
           />
         )}
       </button>
-
-      {/* Debug indicator */}
-      <div 
-        className="fixed top-4 left-4 bg-red-500 text-white px-2 py-1 text-xs z-50 pointer-events-none"
-        style={{ display: 'block' }}
-      >
-        ChatBot Component Active
-      </div>
     </div>
   );
 };
