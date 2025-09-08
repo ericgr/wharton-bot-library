@@ -38,14 +38,31 @@ export interface ChatbotConfig {
   windowHeight: number;
   windowWidth: number;
   fontSize: number;
-  userMessageBackgroundColor: string;
-  userMessageTextColor: string;
+  
+  // Bot Message Settings
   botMessageBackgroundColor: string;
   botMessageTextColor: string;
+  showBotAvatar: boolean;
+  botAvatarUrl: string;
+  showCopyToClipboard: boolean;
+  
+  // User Message Settings
+  userMessageBackgroundColor: string;
+  userMessageTextColor: string;
+  showUserAvatar: boolean;
+  userAvatarUrl: string;
+  
+  // Text Input Field Settings
+  textInputBorderRadius: number;
+  placeholderText: string;
   textInputBackgroundColor: string;
   textInputTextColor: string;
   sendButtonColor: string;
+  sendButtonBorderRadius: number;
   maxCharacters: number;
+  maxCharactersWarning: string;
+  autoFocusInput: boolean;
+  
   enableFileUpload: boolean;
   enableVoiceInput: boolean;
 
@@ -98,14 +115,30 @@ const defaultConfig: ChatbotConfig = {
   windowHeight: 600,
   windowWidth: 400,
   fontSize: 16,
-  userMessageBackgroundColor: "#e3f2fd",
-  userMessageTextColor: "#1976d2",
+  
+  // Bot Message defaults
   botMessageBackgroundColor: "#f5f5f5",
   botMessageTextColor: "#333333",
+  showBotAvatar: true,
+  botAvatarUrl: "https://www.svgrepo.com/show/334455/bot.svg",
+  showCopyToClipboard: true,
+  
+  // User Message defaults
+  userMessageBackgroundColor: "#e3f2fd",
+  userMessageTextColor: "#1976d2",
+  showUserAvatar: true,
+  userAvatarUrl: "https://www.svgrepo.com/show/532363/user-alt-1.svg",
+  
+  // Text Input Field defaults
+  textInputBorderRadius: 6,
+  placeholderText: "How can I assist you?",
   textInputBackgroundColor: "#ffffff",
   textInputTextColor: "#333333",
   sendButtonColor: "#026CB5",
+  sendButtonBorderRadius: 50,
   maxCharacters: 75,
+  maxCharactersWarning: "You exceeded the characters limit. Please input less than 75 characters.",
+  autoFocusInput: false,
   enableFileUpload: false,
   enableVoiceInput: false,
 
