@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { ColorPicker } from "@/components/ui/color-picker";
 import { ChatbotConfig } from "@/hooks/useChatbotConfig";
 
 interface TooltipTabProps {
@@ -35,36 +36,18 @@ export const TooltipTab = ({ config, updateConfig }: TooltipTabProps) => {
 
           <div>
             <Label className="text-sm font-medium mb-2 block">Background Color</Label>
-            <div className="flex items-center gap-3">
-              <div 
-                className="w-8 h-8 rounded border border-border"
-                style={{ backgroundColor: config.tooltipBackgroundColor }}
-              />
-              <Input
-                type="text"
-                value={config.tooltipBackgroundColor}
-                onChange={(e) => updateConfig({ tooltipBackgroundColor: e.target.value })}
-                className="font-mono text-sm"
-                placeholder="#026CB5"
-              />
-            </div>
+            <ColorPicker
+              value={config.tooltipBackgroundColor}
+              onChange={(value) => updateConfig({ tooltipBackgroundColor: value })}
+            />
           </div>
 
           <div>
             <Label className="text-sm font-medium mb-2 block">Text Color</Label>
-            <div className="flex items-center gap-3">
-              <div 
-                className="w-8 h-8 rounded border border-border"
-                style={{ backgroundColor: config.tooltipTextColor }}
-              />
-              <Input
-                type="text"
-                value={config.tooltipTextColor}
-                onChange={(e) => updateConfig({ tooltipTextColor: e.target.value })}
-                className="font-mono text-sm"
-                placeholder="#ffffff"
-              />
-            </div>
+            <ColorPicker
+              value={config.tooltipTextColor}
+              onChange={(value) => updateConfig({ tooltipTextColor: value })}
+            />
           </div>
 
           <div>

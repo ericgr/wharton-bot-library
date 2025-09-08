@@ -4,6 +4,7 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { ColorPicker } from "@/components/ui/color-picker";
 import { Plus, X } from "lucide-react";
 import { ChatbotConfig } from "@/hooks/useChatbotConfig";
 
@@ -92,19 +93,10 @@ export const WindowTab = ({ config, updateConfig }: WindowTabProps) => {
 
       <div>
         <Label className="text-sm font-medium mb-2 block">Background Color</Label>
-        <div className="flex items-center gap-3">
-          <div 
-            className="w-8 h-8 rounded border border-border"
-            style={{ backgroundColor: config.backgroundColorWindow }}
-          />
-          <Input
-            type="text"
-            value={config.backgroundColorWindow}
-            onChange={(e) => updateConfig({ backgroundColorWindow: e.target.value })}
-            className="font-mono text-sm"
-            placeholder="#ffffff"
-          />
-        </div>
+        <ColorPicker
+          value={config.backgroundColorWindow}
+          onChange={(value) => updateConfig({ backgroundColorWindow: value })}
+        />
       </div>
 
       <div className="flex items-center justify-between">

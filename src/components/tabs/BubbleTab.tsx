@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ColorPicker } from "@/components/ui/color-picker";
 import { ChatbotConfig } from "@/hooks/useChatbotConfig";
 
 interface BubbleTabProps {
@@ -37,19 +38,10 @@ export const BubbleTab = ({ config, updateConfig }: BubbleTabProps) => {
 
       <div>
         <Label className="text-sm font-medium mb-2 block">Background Color</Label>
-        <div className="flex items-center gap-3">
-          <div 
-            className="w-8 h-8 rounded border border-border"
-            style={{ backgroundColor: config.backgroundColor }}
-          />
-          <Input
-            type="text"
-            value={config.backgroundColor}
-            onChange={(e) => updateConfig({ backgroundColor: e.target.value })}
-            className="font-mono text-sm"
-            placeholder="#026CB5"
-          />
-        </div>
+        <ColorPicker
+          value={config.backgroundColor}
+          onChange={(value) => updateConfig({ backgroundColor: value })}
+        />
       </div>
 
       <div>
@@ -92,19 +84,10 @@ export const BubbleTab = ({ config, updateConfig }: BubbleTabProps) => {
 
       <div>
         <Label className="text-sm font-medium mb-2 block">Color of Internal Icons</Label>
-        <div className="flex items-center gap-3">
-          <div 
-            className="w-8 h-8 rounded border border-border"
-            style={{ backgroundColor: config.internalIconColor }}
-          />
-          <Input
-            type="text"
-            value={config.internalIconColor}
-            onChange={(e) => updateConfig({ internalIconColor: e.target.value })}
-            className="font-mono text-sm"
-            placeholder="#dceae8"
-          />
-        </div>
+        <ColorPicker
+          value={config.internalIconColor}
+          onChange={(value) => updateConfig({ internalIconColor: value })}
+        />
       </div>
 
       <div>

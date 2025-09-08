@@ -2,6 +2,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { ColorPicker } from "@/components/ui/color-picker";
 import { ChatbotConfig } from "@/hooks/useChatbotConfig";
 
 interface FooterTabProps {
@@ -34,36 +35,18 @@ export const FooterTab = ({ config, updateConfig }: FooterTabProps) => {
 
           <div>
             <Label className="text-sm font-medium mb-2 block">Background Color</Label>
-            <div className="flex items-center gap-3">
-              <div 
-                className="w-8 h-8 rounded border border-border"
-                style={{ backgroundColor: config.footerBackgroundColor }}
-              />
-              <Input
-                type="text"
-                value={config.footerBackgroundColor}
-                onChange={(e) => updateConfig({ footerBackgroundColor: e.target.value })}
-                className="font-mono text-sm"
-                placeholder="#ffffff"
-              />
-            </div>
+            <ColorPicker
+              value={config.footerBackgroundColor}
+              onChange={(value) => updateConfig({ footerBackgroundColor: value })}
+            />
           </div>
 
           <div>
             <Label className="text-sm font-medium mb-2 block">Text Color</Label>
-            <div className="flex items-center gap-3">
-              <div 
-                className="w-8 h-8 rounded border border-border"
-                style={{ backgroundColor: config.footerTextColor }}
-              />
-              <Input
-                type="text"
-                value={config.footerTextColor}
-                onChange={(e) => updateConfig({ footerTextColor: e.target.value })}
-                className="font-mono text-sm"
-                placeholder="#666666"
-              />
-            </div>
+            <ColorPicker
+              value={config.footerTextColor}
+              onChange={(value) => updateConfig({ footerTextColor: value })}
+            />
           </div>
         </>
       )}
