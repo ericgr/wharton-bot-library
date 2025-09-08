@@ -5,6 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ColorPicker } from "@/components/ui/color-picker";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Plus, X } from "lucide-react";
 import { ChatbotConfig } from "@/hooks/useChatbotConfig";
 
@@ -34,59 +35,61 @@ export const WindowTab = ({ config, updateConfig }: WindowTabProps) => {
 
   return (
     <div className="space-y-6">
+      <p className="text-sm text-muted-foreground mb-4">
+        Design your chat interface by customizing the chat window's appearance, messages, avatars, and input field. These settings affect the main chat experience.
+      </p>
+      
       <div>
-        <Label className="text-sm font-medium mb-2 block">
-          Border Radius Style: {config.windowBorderRadius}
-        </Label>
-        <Slider
-          value={[config.windowBorderRadius]}
-          onValueChange={([value]) => updateConfig({ windowBorderRadius: value })}
-          max={50}
-          min={0}
-          step={1}
-          className="w-full"
-        />
+        <Label className="text-sm font-medium mb-3 block">Border Radius Style</Label>
+        <RadioGroup
+          value={config.windowBorderRadius > 0 ? "rounded" : "none"}
+          onValueChange={(value) => updateConfig({ windowBorderRadius: value === "rounded" ? 12 : 0 })}
+          className="flex gap-4"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="rounded" id="rounded" />
+            <Label htmlFor="rounded" className="text-sm">Rounded</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="none" id="none" />
+            <Label htmlFor="none" className="text-sm">None</Label>
+          </div>
+        </RadioGroup>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label className="text-sm font-medium mb-2 block">
-            Avatar Size: {config.avatarSize}
-          </Label>
-          <Slider
-            value={[config.avatarSize]}
-            onValueChange={([value]) => updateConfig({ avatarSize: value })}
-            max={50}
+          <Label className="text-sm font-medium mb-2 block">Avatar Size</Label>
+          <Input
+            type="number"
+            value={config.avatarSize}
+            onChange={(e) => updateConfig({ avatarSize: parseInt(e.target.value) || 24 })}
             min={10}
-            step={1}
+            max={50}
             className="w-full"
           />
         </div>
         <div>
-          <Label className="text-sm font-medium mb-2 block">
-            Avatar Border Radius: {config.avatarBorderRadius}
-          </Label>
-          <Slider
-            value={[config.avatarBorderRadius]}
-            onValueChange={([value]) => updateConfig({ avatarBorderRadius: value })}
-            max={25}
+          <Label className="text-sm font-medium mb-2 block">Avatar Border Radius</Label>
+          <Input
+            type="number"
+            value={config.avatarBorderRadius}
+            onChange={(e) => updateConfig({ avatarBorderRadius: parseInt(e.target.value) || 0 })}
             min={0}
-            step={1}
+            max={25}
             className="w-full"
           />
         </div>
       </div>
 
       <div>
-        <Label className="text-sm font-medium mb-2 block">
-          Message Border Radius: {config.messageBorderRadius}
-        </Label>
-        <Slider
-          value={[config.messageBorderRadius]}
-          onValueChange={([value]) => updateConfig({ messageBorderRadius: value })}
-          max={25}
+        <Label className="text-sm font-medium mb-2 block">Message Border Radius</Label>
+        <Input
+          type="number"
+          value={config.messageBorderRadius}
+          onChange={(e) => updateConfig({ messageBorderRadius: parseInt(e.target.value) || 0 })}
           min={0}
-          step={1}
+          max={25}
           className="w-full"
         />
       </div>
@@ -204,59 +207,52 @@ export const WindowTab = ({ config, updateConfig }: WindowTabProps) => {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label className="text-sm font-medium mb-2 block">
-            Height (px): {config.windowHeight}
-          </Label>
-          <Slider
-            value={[config.windowHeight]}
-            onValueChange={([value]) => updateConfig({ windowHeight: value })}
-            max={800}
+          <Label className="text-sm font-medium mb-2 block">Height (px)</Label>
+          <Input
+            type="number"
+            value={config.windowHeight}
+            onChange={(e) => updateConfig({ windowHeight: parseInt(e.target.value) || 600 })}
             min={300}
-            step={10}
+            max={800}
             className="w-full"
           />
         </div>
         <div>
-          <Label className="text-sm font-medium mb-2 block">
-            Width (px): {config.windowWidth}
-          </Label>
-          <Slider
-            value={[config.windowWidth]}
-            onValueChange={([value]) => updateConfig({ windowWidth: value })}
-            max={600}
+          <Label className="text-sm font-medium mb-2 block">Width (px)</Label>
+          <Input
+            type="number"
+            value={config.windowWidth}
+            onChange={(e) => updateConfig({ windowWidth: parseInt(e.target.value) || 400 })}
             min={250}
-            step={10}
+            max={600}
             className="w-full"
           />
         </div>
       </div>
 
-      <div>
-        <Label className="text-sm font-medium mb-2 block">
-          Font Size (px): {config.fontSize}
-        </Label>
-        <Slider
-          value={[config.fontSize]}
-          onValueChange={([value]) => updateConfig({ fontSize: value })}
-          max={24}
-          min={10}
-          step={1}
-          className="w-full"
-        />
-      </div>
-
-      <div>
-        <Label className="text-sm font-medium mb-2 block">
-          Maximum Characters: {config.maxCharacters}
-        </Label>
-        <Slider
-          value={[config.maxCharacters]}
-          onValueChange={([value]) => updateConfig({ maxCharacters: value })}
-          max={500}
-          min={25}
-          step={5}
-          className="w-full"
-        />
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label className="text-sm font-medium mb-2 block">Font Size (px)</Label>
+          <Input
+            type="number"
+            value={config.fontSize}
+            onChange={(e) => updateConfig({ fontSize: parseInt(e.target.value) || 16 })}
+            min={10}
+            max={24}
+            className="w-full"
+          />
+        </div>
+        <div>
+          <Label className="text-sm font-medium mb-2 block">Maximum Characters</Label>
+          <Input
+            type="number"
+            value={config.maxCharacters}
+            onChange={(e) => updateConfig({ maxCharacters: parseInt(e.target.value) || 75 })}
+            min={25}
+            max={500}
+            className="w-full"
+          />
+        </div>
       </div>
     </div>
   );

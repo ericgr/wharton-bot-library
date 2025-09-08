@@ -68,7 +68,7 @@ Chatbot.init({
           </div>
 
           {currentStep === 1 ? (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="max-w-4xl mx-auto">
               {/* Configuration Panel */}
               <div className="space-y-6">
                 <Card className="shadow-lg border-0 bg-card/50 backdrop-blur-sm">
@@ -119,19 +119,6 @@ Chatbot.init({
                 </div>
               </div>
 
-              {/* Live Preview Instructions */}
-              <div className="lg:sticky lg:top-8">
-                <div className="bg-card/50 backdrop-blur-sm border rounded-lg p-6 text-center">
-                  <MessageSquare className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="font-semibold mb-2">Live Chatbot Preview</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Your chatbot is now live on this page! Changes you make will update the chatbot in real-time.
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Look for the chat bubble in the bottom-right corner of your screen. You can interact with it just like your users will.
-                  </p>
-                </div>
-              </div>
             </div>
           ) : (
             <div className="max-w-4xl mx-auto">

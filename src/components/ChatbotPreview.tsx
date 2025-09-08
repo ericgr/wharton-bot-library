@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MessageSquare, Send, X, RotateCcw } from "lucide-react";
+import { MessageSquare, Send, X, RotateCcw, ChevronDown } from "lucide-react";
 import { ChatbotConfig } from "@/hooks/useChatbotConfig";
 
 interface ChatbotPreviewProps {
@@ -126,7 +126,21 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
               className="flex items-center justify-between p-3 border-b"
               style={{ backgroundColor: config.backgroundColor, color: config.titleTextColor }}
             >
-              <span className="font-medium text-sm">{config.titleText}</span>
+              <div className="flex items-center gap-2">
+                {config.customIconUrl && (
+                  <img 
+                    src={config.customIconUrl} 
+                    alt="Chat"
+                    style={{ 
+                      width: `${config.avatarSize}px`, 
+                      height: `${config.avatarSize}px`,
+                      borderRadius: `${config.avatarBorderRadius}px`,
+                      filter: `invert(1)` // This simulates the icon color change
+                    }}
+                  />
+                )}
+                <span className="font-medium text-sm">{config.titleText}</span>
+              </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={clearChat}
@@ -245,21 +259,28 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
       >
-        {config.customIconUrl ? (
-          <img 
-            src={config.customIconUrl} 
-            alt="Chat"
-            style={{ 
-              width: `${config.customIconSize}%`, 
-              height: `${config.customIconSize}%`,
-              filter: `invert(1)` // This simulates the icon color change
-            }}
-          />
-        ) : (
-          <MessageSquare 
+        {isOpen ? (
+          <ChevronDown 
             className="w-3/4 h-3/4" 
             style={{ color: config.titleTextColor }}
           />
+        ) : (
+          config.customIconUrl ? (
+            <img 
+              src={config.customIconUrl} 
+              alt="Chat"
+              style={{ 
+                width: `${config.customIconSize}%`, 
+                height: `${config.customIconSize}%`,
+                filter: `invert(1)` // This simulates the icon color change
+              }}
+            />
+          ) : (
+            <MessageSquare 
+              className="w-3/4 h-3/4" 
+              style={{ color: config.titleTextColor }}
+            />
+          )
         )}
       </button>
     </div>
