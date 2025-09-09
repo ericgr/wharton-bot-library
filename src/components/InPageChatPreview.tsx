@@ -131,26 +131,6 @@ export const InPageChatPreview = ({ config }: InPageChatPreviewProps) => {
           msOverflowStyle: config.showScrollbar ? 'auto' : 'none'
         }}
       >
-        {/* Starter Prompts */}
-        {messages.length === 1 && config.starterPrompts.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Quick suggestions:</p>
-            <div className="flex flex-wrap gap-2">
-              {config.starterPrompts.map((prompt, index) => (
-                <Button
-                  key={index}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setInputValue(prompt)}
-                  className="text-xs"
-                >
-                  {prompt}
-                </Button>
-              ))}
-            </div>
-          </div>
-        )}
-
         {messages.map((message) => (
           <div key={message.id} className={`flex gap-3 ${message.isBot ? 'justify-start' : 'justify-end'}`}>
             {message.isBot && config.showBotAvatar && (
@@ -215,6 +195,25 @@ export const InPageChatPreview = ({ config }: InPageChatPreviewProps) => {
         className="p-4 border-t"
         style={{ borderTopColor: '#e2e8f0' }}
       >
+        {/* Starter Prompts */}
+        {messages.length === 1 && config.starterPrompts.length > 0 && (
+          <div className="mb-4">
+            <div className="flex flex-wrap gap-2">
+              {config.starterPrompts.map((prompt, index) => (
+                <Button
+                  key={index}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInputValue(prompt)}
+                  className="text-xs"
+                >
+                  {prompt}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
+        
         {showCharacterWarning && (
           <div className="mb-2 text-sm text-red-500">
             {config.maxCharactersWarning}

@@ -270,7 +270,6 @@ Chatbot.init({
 });
 </script>` :
 `<script src="./chatbot-embed.js"></script>
-<kmtbot-inpage></kmtbot-inpage>
 <script>
 Chatbot.init({
   chatbotId: "your-unique-chatbot-id",
