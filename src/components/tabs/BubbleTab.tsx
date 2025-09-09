@@ -14,6 +14,10 @@ interface BubbleTabProps {
 export const BubbleTab = ({ config, updateConfig }: BubbleTabProps) => {
   return (
     <div className="space-y-6">
+      <p className="text-sm text-muted-foreground mb-4">
+        Modify the appearance of your chat bubble including its size, position, colors, and custom icon. This is the floating button users click to open the chat.
+      </p>
+      
       <div>
         <Label className="text-sm font-medium mb-3 block">Border Radius Style</Label>
         <RadioGroup

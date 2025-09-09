@@ -14,6 +14,10 @@ interface TooltipTabProps {
 export const TooltipTab = ({ config, updateConfig }: TooltipTabProps) => {
   return (
     <div className="space-y-6">
+      <p className="text-sm text-muted-foreground mb-4">
+        Configure the tooltip that appears when users hover over the chat button. Set custom messages and styling to enhance user engagement.
+      </p>
+      
       <div className="flex items-center justify-between">
         <Label className="text-sm font-medium">Show Tooltip</Label>
         <Switch

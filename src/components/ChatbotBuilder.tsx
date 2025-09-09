@@ -48,23 +48,37 @@ Chatbot.init({
 
           {/* Step Progress */}
           <div className="flex items-center gap-4 mb-8">
-            <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setCurrentStep(1)}
+              className="flex items-center gap-2 group"
+            >
               <Badge variant={currentStep === 1 ? "default" : "secondary"} className="px-3 py-1">
                 STEP 1
               </Badge>
-              <span className={`font-medium ${currentStep === 1 ? 'text-foreground' : 'text-muted-foreground'}`}>
+              <span className={`font-medium transition-colors ${
+                currentStep === 1 
+                  ? 'text-foreground border-b-2 border-primary' 
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}>
                 Customize
               </span>
-            </div>
+            </button>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
-            <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setCurrentStep(2)}
+              className="flex items-center gap-2 group"
+            >
               <Badge variant={currentStep === 2 ? "default" : "secondary"} className="px-3 py-1">
                 STEP 2
               </Badge>
-              <span className={`font-medium ${currentStep === 2 ? 'text-foreground' : 'text-muted-foreground'}`}>
+              <span className={`font-medium transition-colors ${
+                currentStep === 2 
+                  ? 'text-foreground border-b-2 border-primary' 
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}>
                 Embed Code
               </span>
-            </div>
+            </button>
           </div>
 
           {currentStep === 1 ? (
@@ -111,12 +125,6 @@ Chatbot.init({
                   </CardContent>
                 </Card>
 
-                <div className="flex justify-end">
-                  <Button onClick={() => setCurrentStep(2)} className="px-8">
-                    Next: Embed Code
-                    <ChevronRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </div>
               </div>
 
             </div>
@@ -175,11 +183,6 @@ Chatbot.init({
                       </div>
                     </div>
 
-                    <div className="flex gap-4">
-                      <Button variant="outline" onClick={() => setCurrentStep(1)}>
-                        Back to Customize
-                      </Button>
-                    </div>
                   </div>
                 </CardContent>
               </Card>
