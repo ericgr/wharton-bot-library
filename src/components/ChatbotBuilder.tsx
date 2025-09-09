@@ -203,6 +203,47 @@ Chatbot.init({
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {mode === "inpage" && (
+                    <div>
+                      <h3 className="font-semibold mb-3">Add Widget Element</h3>
+                      <div className="bg-muted/50 rounded-lg p-4 border">
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Place this element where you want the chat widget to appear
+                        </p>
+                        <div className="relative">
+                          <pre className="bg-slate-900 text-green-400 p-4 rounded-lg text-sm overflow-auto">
+&lt;kmtbot-inpage&gt;&lt;/kmtbot-inpage&gt;
+                          </pre>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              navigator.clipboard.writeText('<kmtbot-inpage></kmtbot-inpage>');
+                              setCopied(true);
+                              setTimeout(() => setCopied(false), 2000);
+                            }}
+                            className="absolute top-3 right-3"
+                          >
+                            {copied ? (
+                              <>
+                                <Check className="h-4 w-4 mr-2" />
+                                Copied!
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="h-4 w-4 mr-2" />
+                                Copy
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Note: For full-screen mode, set `margin: 0` to your body element to ensure the chat widget occupies the entire viewport.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  
                   <div>
                     <h3 className="font-semibold mb-3">Add Script to Body</h3>
                     <div className="bg-muted/50 rounded-lg p-4 border">
