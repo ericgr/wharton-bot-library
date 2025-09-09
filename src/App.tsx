@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import ChatbotList from "./pages/ChatbotList";
+import ChatbotBuilder from "./pages/ChatbotBuilder";
 
 const queryClient = new QueryClient();
 
@@ -16,7 +18,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<ChatbotList />} />
+          <Route path="/builder" element={<ChatbotBuilder />} />
+          <Route path="/builder/:id" element={<ChatbotBuilder />} />
           <Route path="/auth" element={<Auth />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
