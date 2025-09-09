@@ -17,7 +17,7 @@ const ChatbotBuilder = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { config, updateConfig, resetConfig } = useChatbotConfig();
+  const { config, updateConfig, setFullConfig, resetConfig } = useChatbotConfig();
   const [chatbotName, setChatbotName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -46,8 +46,13 @@ const ChatbotBuilder = () => {
 
       if (error) throw error;
 
+      console.log("Loaded chatbot data:", data);
       setChatbotName(data.name);
-      updateConfig(data.config as any);
+      
+      // Merge loaded config with default config to ensure all properties exist
+      const loadedConfig = { ...config, ...(data.config as any) };
+      console.log("Setting loaded config:", loadedConfig);
+      setFullConfig(loadedConfig);
     } catch (error) {
       console.error("Error loading chatbot:", error);
       toast({
