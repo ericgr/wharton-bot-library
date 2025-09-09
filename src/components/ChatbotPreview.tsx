@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MessageSquare, Send, X, RotateCcw, ChevronDown, Copy } from "lucide-react";
+import { MessageSquare, Send, X, RotateCcw, ChevronDown, Copy, Move } from "lucide-react";
 import { ChatbotConfig } from "@/hooks/useChatbotConfig";
 
 interface ChatbotPreviewProps {
@@ -16,7 +16,10 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
   ]);
   const [inputValue, setInputValue] = useState("");
   const [showCharacterWarning, setShowCharacterWarning] = useState(false);
+  const [windowSize, setWindowSize] = useState({ width: config.windowWidth, height: config.windowHeight });
+  const [isResizing, setIsResizing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const windowRef = useRef<HTMLDivElement>(null);
 
   // Auto-open functionality
   useEffect(() => {
@@ -95,14 +98,43 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
   };
 
   const getWindowStyle = () => ({
-    width: `${config.windowWidth}px`,
-    height: `${config.windowHeight}px`,
+    width: `${windowSize.width}px`,
+    height: `${windowSize.height}px`,
     right: `${config.rightPosition}px`,
     bottom: `${config.bottomPosition + config.bubbleSize + 10}px`,
-    borderRadius: `${config.windowBorderRadius}px`,
+    borderRadius: config.windowBorderRadius > 0 ? `${config.windowBorderRadius}px` : "0px",
     backgroundColor: config.backgroundColorWindow,
     fontSize: `${config.fontSize}px`,
   });
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+    
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startWidth = windowSize.width;
+    const startHeight = windowSize.height;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const deltaX = startX - e.clientX;
+      const deltaY = e.clientY - startY;
+      
+      const newWidth = Math.max(250, Math.min(600, startWidth + deltaX));
+      const newHeight = Math.max(300, Math.min(800, startHeight + deltaY));
+      
+      setWindowSize({ width: newWidth, height: newHeight });
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
 
   console.log("ChatbotPreview rendering with config:", config);
   console.log("Bubble style:", getBubbleStyle());
@@ -138,9 +170,27 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
       {/* Chat window */}
       {isOpen && (
         <div
-          className="fixed z-40 shadow-xl border flex flex-col pointer-events-auto"
+          ref={windowRef}
+          className="fixed z-40 shadow-xl border flex flex-col pointer-events-auto relative"
           style={getWindowStyle()}
         >
+          {/* Resize handles */}
+          <div 
+            className="absolute -top-1 -left-1 w-4 h-4 cursor-nw-resize z-50 group"
+            onMouseDown={handleMouseDown}
+          >
+            <div className="w-full h-full bg-gray-400/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <Move size={10} className="text-gray-600" />
+            </div>
+          </div>
+          <div 
+            className="absolute -top-1 -right-1 w-4 h-4 cursor-ne-resize z-50 group"
+            onMouseDown={handleMouseDown}
+          >
+            <div className="w-full h-full bg-gray-400/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <Move size={10} className="text-gray-600" />
+            </div>
+          </div>
           {/* Header */}
           {config.showTitleSection && (
             <div 
