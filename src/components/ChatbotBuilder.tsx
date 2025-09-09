@@ -18,12 +18,12 @@ export const ChatbotBuilder = () => {
   const { config, updateConfig } = useChatbotConfig();
 
   const handleCopyCode = () => {
-    const embedCode = `<script type="module" defer>
-import Chatbot from "./chatbot-embed.js";
+    const embedCode = `<script src="./chatbot-embed.js"></script>
+<script>
 Chatbot.init({
-  "n8nChatUrl": "${config.webhookUrl || 'YOUR_N8N_CHAT_TRIGGER_NODE_WEBHOOK_URL'}",
-  "metadata": {},
-  "theme": ${JSON.stringify(config, null, 2)}
+  n8nChatUrl: "${config.webhookUrl || 'YOUR_N8N_CHAT_TRIGGER_NODE_WEBHOOK_URL'}",
+  metadata: {},
+  theme: ${JSON.stringify(config, null, 2)}
 });
 </script>`;
     
