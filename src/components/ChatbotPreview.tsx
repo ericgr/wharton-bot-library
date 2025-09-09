@@ -359,6 +359,10 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
                 <Send className="h-4 w-4" />
               </Button>
             </div>
+            
+            <div className="text-xs text-muted-foreground mt-1">
+              {inputValue.length}/{config.maxCharacters} characters
+            </div>
           </div>
 
           {/* Footer */}
