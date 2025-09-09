@@ -94,26 +94,13 @@ export const InPageChatPreview = ({ config }: InPageChatPreviewProps) => {
           }}
         >
           <div className="flex items-center gap-3">
-            {config.showBotAvatar ? (
+            <div className="w-8 h-8 flex items-center justify-center">
               <img 
-                src={config.botAvatarUrl || "/placeholder.svg"} 
-                alt="Bot Avatar"
-                className="rounded-full object-cover"
-                style={{ 
-                  width: `${config.avatarSize}px`, 
-                  height: `${config.avatarSize}px`,
-                  borderRadius: `${config.avatarBorderRadius}px`
-                }}
+                src={config.customIconUrl} 
+                alt="Chat icon" 
+                className="w-6 h-6 object-contain"
               />
-            ) : config.customIconUrl ? (
-              <div className="w-8 h-8 flex items-center justify-center">
-                <img 
-                  src={config.customIconUrl} 
-                  alt="Chat icon" 
-                  className="w-6 h-6 object-contain"
-                />
-              </div>
-            ) : null}
+            </div>
             <h3 
               className="font-semibold"
               style={{ 

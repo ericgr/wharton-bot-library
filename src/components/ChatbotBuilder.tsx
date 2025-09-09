@@ -205,7 +205,7 @@ Chatbot.init({
                 <CardContent className="space-y-6">
                   {mode === "inpage" && (
                     <div>
-                      <h3 className="font-semibold mb-3">Add Widget Element</h3>
+                      <h3 className="font-semibold mb-3">1. Add Widget Element</h3>
                       <div className="bg-muted/50 rounded-lg p-4 border">
                         <p className="text-sm text-muted-foreground mb-3">
                           Place this element where you want the chat widget to appear
@@ -245,7 +245,7 @@ Chatbot.init({
                   )}
                   
                   <div>
-                    <h3 className="font-semibold mb-3">Add Script to Body</h3>
+                    <h3 className="font-semibold mb-3">{mode === "inpage" ? "2. Add Script to Body" : "Add Script to Body"}</h3>
                     <div className="bg-muted/50 rounded-lg p-4 border">
                       <div className="flex items-start gap-3 p-3 bg-warning/10 border border-warning/20 rounded-md mb-4">
                         <div className="w-5 h-5 bg-warning rounded-full flex-shrink-0 mt-0.5" />
