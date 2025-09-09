@@ -382,7 +382,7 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
         className="fixed z-[9999] flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-105 pointer-events-auto"
         style={{
           ...getBubbleStyle(),
-          display: 'block',
+          display: 'flex',
           visibility: 'visible'
         }}
         onClick={toggleChat}
@@ -401,8 +401,7 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
               alt="Chat"
               style={{ 
                 width: `${config.customIconSize}%`, 
-                height: `${config.customIconSize}%`,
-                filter: `invert(1)` // This simulates the icon color change
+                height: `${config.customIconSize}%`
               }}
             />
           ) : (
