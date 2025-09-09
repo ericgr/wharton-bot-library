@@ -371,7 +371,7 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
                 color: config.footerTextColor,
               }}
             >
-              {config.footerText}
+              <div dangerouslySetInnerHTML={{ __html: config.footerText }} />
             </div>
           )}
         </div>

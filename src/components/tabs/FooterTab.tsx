@@ -24,7 +24,7 @@ export const FooterTab = ({ config, updateConfig }: FooterTabProps) => {
       {config.showFooter && (
         <>
           <div>
-            <Label className="text-sm font-medium mb-2 block">Footer Text</Label>
+            <Label className="text-sm font-medium mb-2 block">Footer Text (accepts basic HTML)</Label>
             <Textarea
               value={config.footerText}
               onChange={(e) => updateConfig({ footerText: e.target.value })}
