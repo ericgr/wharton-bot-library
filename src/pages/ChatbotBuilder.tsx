@@ -49,8 +49,8 @@ const ChatbotBuilder = () => {
       console.log("Loaded chatbot data:", data);
       setChatbotName(data.name);
       
-      // Merge loaded config with default config to ensure all properties exist
-      const loadedConfig = { ...config, ...(data.config as any) };
+      // Use the loaded config directly, don't merge with current state
+      const loadedConfig = data.config as any;
       console.log("Setting loaded config:", loadedConfig);
       setFullConfig(loadedConfig);
     } catch (error) {
