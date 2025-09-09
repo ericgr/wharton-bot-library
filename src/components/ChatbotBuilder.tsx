@@ -12,6 +12,7 @@ import { WindowTab } from "./tabs/WindowTab";
 import { FooterTab } from "./tabs/FooterTab";
 import { AdvancedTab } from "./tabs/AdvancedTab";
 import { ChatbotPreview } from "./ChatbotPreview";
+import { InPageChatPreview } from "./InPageChatPreview";
 import { useChatbotConfig } from "@/hooks/useChatbotConfig";
 
 export const ChatbotBuilder = () => {
@@ -179,102 +180,13 @@ Chatbot.init({
                         <MessageSquare className="h-5 w-5" />
                         In-page Preview
                       </CardTitle>
+                      <p className="text-sm text-muted-foreground">
+                        This preview shows how your chatbot will appear when embedded directly in a webpage
+                      </p>
                     </CardHeader>
                     <CardContent>
-                      <div className="bg-muted/30 p-6 rounded-lg border-2 border-dashed border-muted-foreground/20">
-                        <div className="max-w-md mx-auto">
-                          <div 
-                            style={{
-                              backgroundColor: config.backgroundColorWindow,
-                              borderRadius: `${config.windowBorderRadius}px`,
-                              boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-                              border: `1px solid #e2e8f0`,
-                              minHeight: '400px',
-                              display: 'flex',
-                              flexDirection: 'column'
-                            }}
-                            className="overflow-hidden"
-                          >
-                            {/* Header */}
-                            {config.showTitleSection && (
-                              <div 
-                                style={{
-                                  backgroundColor: config.backgroundColor,
-                                  color: config.titleTextColor,
-                                  padding: '16px',
-                                  fontSize: `${config.fontSize}px`
-                                }}
-                                className="flex items-center justify-between"
-                              >
-                                <div className="flex items-center gap-2">
-                                  {config.showBotAvatar && (
-                                    <div
-                                      style={{
-                                        width: `${config.avatarSize}px`,
-                                        height: `${config.avatarSize}px`,
-                                        borderRadius: `${config.avatarBorderRadius}px`
-                                      }}
-                                      className="bg-white/20 flex items-center justify-center"
-                                    >
-                                      <MessageSquare size={config.avatarSize * 0.6} />
-                                    </div>
-                                  )}
-                                  <span style={{ fontSize: `${config.fontSize}px` }}>
-                                    {config.titleText}
-                                  </span>
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Messages Area */}
-                            <div className="flex-1 p-4 space-y-3">
-                              <div className="flex justify-start">
-                                <div 
-                                  style={{
-                                    backgroundColor: config.botMessageBackgroundColor,
-                                    color: config.botMessageTextColor,
-                                    padding: '8px 12px',
-                                    borderRadius: `${config.messageBorderRadius}px`,
-                                    fontSize: `${config.fontSize}px`,
-                                    maxWidth: '80%'
-                                  }}
-                                >
-                                  {config.welcomeMessage || "Hello! How can I help you today?"}
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Footer */}
-                            {config.showFooter && config.footerText && (
-                              <div 
-                                style={{
-                                  backgroundColor: config.footerBackgroundColor,
-                                  color: config.footerTextColor,
-                                  padding: '8px 16px',
-                                  fontSize: `${config.fontSize}px`,
-                                  textAlign: 'center' as const
-                                }}
-                                dangerouslySetInnerHTML={{ __html: config.footerText }}
-                              />
-                            )}
-
-                            {/* Input Area */}
-                            <div className="p-4 border-t" style={{ borderColor: '#e2e8f0' }}>
-                              <div 
-                                style={{
-                                  backgroundColor: config.textInputBackgroundColor,
-                                  borderRadius: `${config.textInputBorderRadius}px`,
-                                  padding: '8px 16px',
-                                  border: `1px solid #e2e8f0`,
-                                  fontSize: `${config.fontSize}px`,
-                                  color: config.textInputTextColor
-                                }}
-                              >
-                                {config.placeholderText}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                      <div className="border-2 border-dashed border-muted-foreground/20 rounded-lg p-6">
+                        <InPageChatPreview config={config} />
                       </div>
                     </CardContent>
                   </Card>
