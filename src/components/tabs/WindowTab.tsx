@@ -52,7 +52,7 @@ export const WindowTab = ({ config, updateConfig }: WindowTabProps) => {
       </p>
       
       <div>
-        <Label className="text-sm font-medium mb-3 block">Border Radius Style</Label>
+        <Label className="text-sm font-medium mb-3 block">Chatbot Border Radius Style</Label>
         <RadioGroup
           value={config.windowBorderRadius > 0 ? "rounded" : "none"}
           onValueChange={(value) => updateConfig({ windowBorderRadius: value === "rounded" ? 32 : 0 })}
@@ -68,6 +68,20 @@ export const WindowTab = ({ config, updateConfig }: WindowTabProps) => {
           </div>
         </RadioGroup>
       </div>
+
+      {config.windowBorderRadius > 0 && (
+        <div>
+          <Label className="text-sm font-medium mb-2 block">Chatbot Border Radius: {config.windowBorderRadius}px</Label>
+          <Slider
+            value={[config.windowBorderRadius]}
+            onValueChange={([value]) => updateConfig({ windowBorderRadius: value })}
+            min={0}
+            max={50}
+            step={1}
+            className="mt-2"
+          />
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-4">
         <div>
