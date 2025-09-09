@@ -31,6 +31,11 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
     }
   }, [config.autoOpenBot, config.openDelay]);
 
+  // Update window size when config changes
+  useEffect(() => {
+    setWindowSize({ width: config.windowWidth, height: config.windowHeight });
+  }, [config.windowWidth, config.windowHeight]);
+
   // Update welcome message when config changes
   useEffect(() => {
     setMessages([{ id: 1, text: config.welcomeMessage, isBot: true }]);
@@ -136,8 +141,6 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
     document.addEventListener('mouseup', handleMouseUp);
   };
 
-  console.log("ChatbotPreview rendering with config:", config);
-  console.log("Bubble style:", getBubbleStyle());
   
   return (
     <div className="fixed inset-0 pointer-events-none z-[9999]">
