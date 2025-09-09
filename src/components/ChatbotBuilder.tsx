@@ -153,12 +153,12 @@ Chatbot.init({
                       
                       <div className="relative">
                         <pre className="bg-slate-900 text-green-400 p-4 rounded-lg text-sm overflow-auto max-h-96">
-{`<script type="module" defer>
-import Chatbot from "https://cdn.n8nchatui.com/v1/embed.js";
+{`<script src="./chatbot-embed.js"></script>
+<script>
 Chatbot.init({
-  "n8nChatUrl": "${config.webhookUrl || 'YOUR_N8N_CHAT_TRIGGER_NODE_WEBHOOK_URL'}",
-  "metadata": {},
-  "theme": ${JSON.stringify(config, null, 2)}
+  n8nChatUrl: "${config.webhookUrl || 'YOUR_N8N_CHAT_TRIGGER_NODE_WEBHOOK_URL'}",
+  metadata: {},
+  theme: ${JSON.stringify(config, null, 2)}
 });
 </script>`}
                         </pre>
