@@ -174,7 +174,7 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
       {isOpen && (
         <div
           ref={windowRef}
-          className="fixed z-40 shadow-xl border flex flex-col pointer-events-auto relative"
+          className="fixed z-40 shadow-xl border flex flex-col pointer-events-auto"
           style={getWindowStyle()}
         >
           {/* Resize handles */}
