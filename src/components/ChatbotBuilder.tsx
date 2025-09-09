@@ -19,7 +19,7 @@ export const ChatbotBuilder = () => {
 
   const handleCopyCode = () => {
     const embedCode = `<script type="module" defer>
-import Chatbot from "https://cdn.n8nchatui.com/v1/embed.js";
+import Chatbot from "./chatbot-embed.js";
 Chatbot.init({
   "n8nChatUrl": "${config.webhookUrl || 'YOUR_N8N_CHAT_TRIGGER_NODE_WEBHOOK_URL'}",
   "metadata": {},
