@@ -209,8 +209,7 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
                     style={{ 
                       width: `${config.avatarSize}px`, 
                       height: `${config.avatarSize}px`,
-                      borderRadius: `${config.avatarBorderRadius}px`,
-                      filter: `invert(1)` // This simulates the icon color change
+                      borderRadius: `${config.avatarBorderRadius}px`
                     }}
                   />
                 )}
