@@ -13,13 +13,23 @@ import { FooterTab } from "./tabs/FooterTab";
 import { AdvancedTab } from "./tabs/AdvancedTab";
 import { ChatbotPreview } from "./ChatbotPreview";
 import { InPageChatPreview } from "./InPageChatPreview";
-import { useChatbotConfig } from "@/hooks/useChatbotConfig";
+import { useChatbotConfig, ChatbotConfig } from "@/hooks/useChatbotConfig";
 
-export const ChatbotBuilder = () => {
+interface ChatbotBuilderProps {
+  config?: ChatbotConfig;
+  updateConfig?: (updates: Partial<ChatbotConfig>) => void;
+  setFullConfig?: (config: ChatbotConfig) => void;
+}
+
+export const ChatbotBuilder = ({ config: propConfig, updateConfig: propUpdateConfig }: ChatbotBuilderProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [copied, setCopied] = useState(false);
   const [mode, setMode] = useState<"popup" | "inpage">("popup");
-  const { config, updateConfig } = useChatbotConfig();
+  const hookResult = useChatbotConfig();
+  
+  // Use props if provided, otherwise use hook
+  const config = propConfig || hookResult.config;
+  const updateConfig = propUpdateConfig || hookResult.updateConfig;
 
   const handleCopyCode = async () => {
     // Generate a unique chatbot ID for this configuration

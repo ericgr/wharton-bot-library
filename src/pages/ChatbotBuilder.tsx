@@ -83,6 +83,8 @@ const ChatbotBuilder = () => {
         config: config as any,
         user_id: user.id,
       };
+      
+      console.log("Saving config:", config);
 
       if (id) {
         // Update existing chatbot
@@ -179,7 +181,7 @@ const ChatbotBuilder = () => {
             </CardContent>
           </Card>
 
-          <ChatbotBuilderComponent />
+          <ChatbotBuilderComponent config={config} updateConfig={updateConfig} setFullConfig={setFullConfig} />
         </div>
       </div>
     </AuthGuard>

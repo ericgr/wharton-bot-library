@@ -157,7 +157,8 @@ export const useChatbotConfig = () => {
   const [config, setConfig] = useState<ChatbotConfig>(defaultConfig);
 
   const updateConfig = (updates: Partial<ChatbotConfig>) => {
-    console.log("Updating config with:", updates);
+    console.log("🔄 Updating config with:", updates);
+    console.log("🔄 Current config before update:", config);
     // Validate inputs for security
     const sanitizedUpdates = { ...updates };
     
@@ -183,7 +184,11 @@ export const useChatbotConfig = () => {
       }
     }
     
-    setConfig(prev => ({ ...prev, ...sanitizedUpdates }));
+    setConfig(prev => {
+      const newConfig = { ...prev, ...sanitizedUpdates };
+      console.log("🔄 New config after update:", newConfig);
+      return newConfig;
+    });
   };
 
   const setFullConfig = (newConfig: ChatbotConfig) => {
