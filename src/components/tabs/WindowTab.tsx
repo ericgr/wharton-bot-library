@@ -55,7 +55,7 @@ export const WindowTab = ({ config, updateConfig }: WindowTabProps) => {
         <Label className="text-sm font-medium mb-3 block">Border Radius Style</Label>
         <RadioGroup
           value={config.windowBorderRadius > 0 ? "rounded" : "none"}
-          onValueChange={(value) => updateConfig({ windowBorderRadius: value === "rounded" ? 12 : 0 })}
+          onValueChange={(value) => updateConfig({ windowBorderRadius: value === "rounded" ? 32 : 0 })}
           className="flex gap-4"
         >
           <div className="flex items-center space-x-2">

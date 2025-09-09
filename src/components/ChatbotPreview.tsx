@@ -123,9 +123,9 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
 
     const handleMouseMove = (e: MouseEvent) => {
       const deltaX = startX - e.clientX;
-      const deltaY = e.clientY - startY;
+      const deltaY = startY - e.clientY; // Fixed: reversed direction for intuitive dragging
       
-      const newWidth = Math.max(250, Math.min(600, startWidth + deltaX));
+      const newWidth = Math.max(250, Math.min(800, startWidth + deltaX)); // Increased max width
       const newHeight = Math.max(300, Math.min(800, startHeight + deltaY));
       
       setWindowSize({ width: newWidth, height: newHeight });
