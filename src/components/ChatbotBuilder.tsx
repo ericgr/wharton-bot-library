@@ -17,19 +17,27 @@ export const ChatbotBuilder = () => {
   const [copied, setCopied] = useState(false);
   const { config, updateConfig } = useChatbotConfig();
 
-  const handleCopyCode = () => {
+  const handleCopyCode = async () => {
+    // Generate a unique chatbot ID for this configuration
+    const chatbotId = crypto.randomUUID();
+    
     const embedCode = `<script src="./chatbot-embed.js"></script>
 <script>
 Chatbot.init({
-  n8nChatUrl: "${config.webhookUrl || 'YOUR_N8N_CHAT_TRIGGER_NODE_WEBHOOK_URL'}",
+  chatbotId: "${chatbotId}",
+  routingUrl: "https://jppjdfmeblnmfdowpumn.supabase.co/functions/v1/chat",
   metadata: {},
   theme: ${JSON.stringify(config, null, 2)}
 });
 </script>`;
     
-    navigator.clipboard.writeText(embedCode);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(embedCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy code:', err);
+    }
   };
 
   return (
@@ -145,8 +153,8 @@ Chatbot.init({
                         <div className="w-5 h-5 bg-warning rounded-full flex-shrink-0 mt-0.5" />
                         <div>
                           <p className="font-medium text-sm">Important</p>
-                          <p className="text-sm text-muted-foreground">
-                            Make sure to replace <code className="bg-muted px-1 rounded">n8nChatUrl</code> with your own chat trigger node's webhook URL from n8n
+                           <p className="text-sm text-muted-foreground">
+                            You'll need to create a chatbot configuration in your database with the displayed chatbot ID and your n8n webhook URL for this to work.
                           </p>
                         </div>
                       </div>
@@ -156,7 +164,8 @@ Chatbot.init({
 {`<script src="./chatbot-embed.js"></script>
 <script>
 Chatbot.init({
-  n8nChatUrl: "${config.webhookUrl || 'YOUR_N8N_CHAT_TRIGGER_NODE_WEBHOOK_URL'}",
+  chatbotId: "your-unique-chatbot-id",
+  routingUrl: "https://jppjdfmeblnmfdowpumn.supabase.co/functions/v1/chat",
   metadata: {},
   theme: ${JSON.stringify(config, null, 2)}
 });

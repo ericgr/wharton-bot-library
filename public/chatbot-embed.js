@@ -15,7 +15,8 @@ class ChatbotWidget {
   init(options) {
     this.config = {
       // Default configuration
-      n8nChatUrl: '',
+      chatbotId: '',
+      routingUrl: '',
       metadata: {},
       theme: {
         // Bubble
@@ -555,34 +556,62 @@ class ChatbotWidget {
   }
 
   async sendToWebhook(message) {
-    const webhookUrl = this.config.theme.webhookUrl || this.config.n8nChatUrl;
-    
     try {
-      const response = await fetch(webhookUrl, {
+      if (!this.config.chatbotId || !this.config.routingUrl) {
+        console.error('Chatbot ID or routing URL not configured');
+        this.messages.push({
+          type: 'bot',
+          content: 'Sorry, this chatbot is not properly configured.',
+          timestamp: new Date()
+        });
+        this.updateChatWindow();
+        return;
+      }
+
+      const response = await fetch(`${this.config.routingUrl}/${this.config.chatbotId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: message,
-          metadata: this.config.metadata,
-          timestamp: new Date().toISOString()
+          action: 'sendMessage',
+          sessionId: this.sessionId || 'anonymous-' + Date.now(),
+          chatInput: message,
+          ...this.config.metadata
         })
       });
 
       if (response.ok) {
         const data = await response.json();
-        if (data.response) {
-          this.messages.push({
-            type: 'bot',
-            content: data.response,
-            timestamp: new Date()
-          });
-          this.updateChatWindow();
+        const botResponse = data.output || data.response || "I received your message!";
+        this.messages.push({
+          type: 'bot',
+          content: botResponse,
+          timestamp: new Date()
+        });
+        this.updateChatWindow();
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Error response from routing service:', response.status, errorData);
+        
+        let errorMessage = "Sorry, I'm having trouble connecting right now.";
+        if (response.status === 404) {
+          errorMessage = "Sorry, this chatbot configuration was not found.";
+        } else if (response.status === 502) {
+          errorMessage = "Sorry, the chatbot service is currently unavailable.";
+        } else if (response.status === 504) {
+          errorMessage = "Sorry, the request timed out. Please try again.";
         }
+        
+        this.messages.push({
+          type: 'bot',
+          content: errorMessage,
+          timestamp: new Date()
+        });
+        this.updateChatWindow();
       }
     } catch (error) {
-      console.error('Error sending message to webhook:', error);
+      console.error('Error sending to routing service:', error);
       this.messages.push({
         type: 'bot',
         content: 'Sorry, I encountered an error. Please try again.',

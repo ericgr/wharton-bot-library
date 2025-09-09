@@ -1,1 +1,12 @@
 project_id = "jppjdfmeblnmfdowpumn"
+
+[auth]
+enabled = true
+site_url = "https://jppjdfmeblnmfdowpumn.supabase.co"
+additional_redirect_urls = ["https://lovable.dev"]
+
+[auth.email]
+enable_signup = true
+
+[functions.chat]
+verify_jwt = false
