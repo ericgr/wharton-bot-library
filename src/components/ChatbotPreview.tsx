@@ -110,6 +110,7 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
     borderRadius: config.windowBorderRadius > 0 ? `${config.windowBorderRadius}px` : "0px",
     backgroundColor: config.backgroundColorWindow,
     fontSize: `${config.fontSize}px`,
+    overflow: 'hidden', // This ensures border radius is visible
   });
 
   const handleMouseDown = (e: React.MouseEvent) => {
