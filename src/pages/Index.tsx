@@ -1,7 +1,12 @@
 import { ChatbotBuilder } from "@/components/ChatbotBuilder";
+import AuthGuard from "@/components/AuthGuard";
 
 const Index = () => {
-  return <ChatbotBuilder />;
+  return (
+    <AuthGuard>
+      <ChatbotBuilder />
+    </AuthGuard>
+  );
 };
 
 export default Index;

@@ -157,7 +157,32 @@ export const useChatbotConfig = () => {
   const [config, setConfig] = useState<ChatbotConfig>(defaultConfig);
 
   const updateConfig = (updates: Partial<ChatbotConfig>) => {
-    setConfig(prev => ({ ...prev, ...updates }));
+    // Validate inputs for security
+    const sanitizedUpdates = { ...updates };
+    
+    // Sanitize text inputs
+    if (updates.titleText) {
+      sanitizedUpdates.titleText = updates.titleText.slice(0, 100); // Max 100 chars
+    }
+    if (updates.welcomeMessage) {
+      sanitizedUpdates.welcomeMessage = updates.welcomeMessage.slice(0, 500);
+    }
+    if (updates.tooltipMessage) {
+      sanitizedUpdates.tooltipMessage = updates.tooltipMessage.slice(0, 200);
+    }
+    if (updates.footerText) {
+      sanitizedUpdates.footerText = updates.footerText.slice(0, 100);
+    }
+    if (updates.webhookUrl) {
+      // Basic URL validation
+      try {
+        new URL(updates.webhookUrl);
+      } catch {
+        return; // Don't update if invalid URL
+      }
+    }
+    
+    setConfig(prev => ({ ...prev, ...sanitizedUpdates }));
   };
 
   return {

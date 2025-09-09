@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ChevronRight, Code2, Settings, Copy, Check, MessageSquare } from "lucide-react";
+import UserProfile from "./UserProfile";
 import { BubbleTab } from "./tabs/BubbleTab";
 import { TooltipTab } from "./tabs/TooltipTab";
 import { WindowTab } from "./tabs/WindowTab";
@@ -45,13 +46,16 @@ Chatbot.init({
       <div className="min-h-screen bg-gradient-to-br from-muted/30 to-background">
         <div className="container mx-auto px-4 py-8">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">
-              Chatbot Configuration Tool
-            </h1>
-            <p className="text-muted-foreground">
-              Create and customize your embeddable chatbot widget
-            </p>
+          <div className="mb-8 flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground mb-2">
+                Chatbot Configuration Tool
+              </h1>
+              <p className="text-muted-foreground">
+                Create and customize your embeddable chatbot widget
+              </p>
+            </div>
+            <UserProfile />
           </div>
 
           {/* Step Progress */}

@@ -13,13 +13,15 @@ serve(async (req) => {
   }
 
   try {
-    // Extract chatbot ID from URL path
+    // Extract chatbot ID from URL path with validation
     const url = new URL(req.url);
     const pathParts = url.pathname.split('/');
     const chatbotId = pathParts[pathParts.length - 1];
 
-    if (!chatbotId || chatbotId === 'chat') {
-      return new Response(JSON.stringify({ error: 'Chatbot ID is required' }), {
+    // Validate chatbotId
+    if (!chatbotId || chatbotId === 'chat' || typeof chatbotId !== 'string' || chatbotId.length > 100) {
+      console.error('Invalid chatbot ID:', chatbotId);
+      return new Response(JSON.stringify({ error: 'Invalid chatbot ID' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -54,8 +56,17 @@ serve(async (req) => {
       });
     }
 
-    // Parse the request body
+    // Parse and validate the request body
     const requestBody = await req.json();
+    
+    // Basic input validation
+    if (!requestBody || typeof requestBody !== 'object') {
+      console.error('Invalid request body for chatbot:', chatbotId);
+      return new Response(JSON.stringify({ error: 'Invalid request format' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     
     // Add chatbot metadata to the request
     const enhancedPayload = {
