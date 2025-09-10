@@ -144,7 +144,7 @@ const defaultConfig: ChatbotConfig = {
 
   // Footer defaults
   showFooter: true,
-  footerText: "Powered by WEMBA",
+  footerText: "Powered by KMT",
   footerBackgroundColor: "#ffffff",
   footerTextColor: "#666666",
 

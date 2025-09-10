@@ -152,7 +152,7 @@ export const WindowTab = ({ config, updateConfig }: WindowTabProps) => {
         <Textarea
           value={config.welcomeMessage}
           onChange={(e) => updateConfig({ welcomeMessage: e.target.value })}
-          placeholder="Hi there! I'm here to help you..."
+          placeholder="Add a welcome message here"
           className="min-h-[100px]"
         />
       </div>

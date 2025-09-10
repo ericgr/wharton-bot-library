@@ -198,9 +198,14 @@ const ChatbotList = () => {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {chatbots.map((chatbot) => (
-                <Card key={chatbot.id} className="group hover:shadow-lg transition-shadow">
+                <Card key={chatbot.id} className="group hover:shadow-lg transition-shadow bg-gradient-to-br from-sky-50 to-white">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-lg truncate pr-2">{chatbot.name}</CardTitle>
+                    <CardTitle 
+                      className="text-lg truncate pr-2 cursor-pointer hover:text-primary transition-colors"
+                      onClick={() => handleEdit(chatbot.id)}
+                    >
+                      {chatbot.name}
+                    </CardTitle>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button

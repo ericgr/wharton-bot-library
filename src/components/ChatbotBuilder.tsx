@@ -37,7 +37,7 @@ export const ChatbotBuilder = ({ config: propConfig, updateConfig: propUpdateCon
     
     let embedCode;
     if (mode === "popup") {
-      embedCode = `<script src="./chatbot-embed.js"></script>
+      embedCode = `<script src="https://chatbot.headstartmarketingplatform.com/chatbot-embed.js"></script>
 <script>
 Chatbot.init({
   chatbotId: "${chatbotId}",
@@ -47,7 +47,7 @@ Chatbot.init({
 });
 </script>`;
     } else {
-      embedCode = `<script src="./chatbot-embed.js"></script>
+      embedCode = `<script src="https://chatbot.headstartmarketingplatform.com/chatbot-embed.js"></script>
 <kmtbot-inpage></kmtbot-inpage>
 <script>
 Chatbot.init({
@@ -270,7 +270,7 @@ Chatbot.init({
                        <div className="relative">
                         <pre className="bg-slate-900 text-green-400 p-4 rounded-lg text-sm overflow-auto max-h-96">
 {mode === "popup" ? 
-`<script src="./chatbot-embed.js"></script>
+`<script src="https://chatbot.headstartmarketingplatform.com/chatbot-embed.js"></script>
 <script>
 Chatbot.init({
   chatbotId: "your-unique-chatbot-id",
@@ -279,7 +279,7 @@ Chatbot.init({
   theme: ${JSON.stringify(config, null, 2)}
 });
 </script>` :
-`<script src="./chatbot-embed.js"></script>
+`<script src="https://chatbot.headstartmarketingplatform.com/chatbot-embed.js"></script>
 <script>
 Chatbot.init({
   chatbotId: "your-unique-chatbot-id",
