@@ -13,6 +13,7 @@ class ChatbotWidget {
   }
 
   init(options) {
+    console.log('Chatbot options received:', options);
     this.config = {
       // Default configuration
       chatbotId: '',
