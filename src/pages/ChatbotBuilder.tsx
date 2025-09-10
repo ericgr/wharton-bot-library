@@ -81,6 +81,7 @@ const ChatbotBuilder = () => {
       const chatbotData = {
         name: chatbotName.trim(),
         config: config as any,
+        webhook_url: config.webhookUrl || null,
         user_id: user.id,
       };
       
