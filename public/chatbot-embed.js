@@ -1,5 +1,5 @@
 /**
- * Custom Chatbot Embed Script V9 (Final)
+ * Custom Chatbot Embed Script V10 (Final with Markdown)
  * A comprehensive embeddable chatbot widget with full feature and theming support.
  */
 class ChatbotWidget {
@@ -24,6 +24,7 @@ class ChatbotWidget {
   // --- Core Initialization ---
   init(options) {
     this.mergeConfig(options);
+    this.loadMarkdownConverter(); // Load the new library
     if (this.config.theme.clearChatOnReload) {
       sessionStorage.removeItem(`chatbot_messages_${this.config.chatbotId}`);
     }
@@ -205,6 +206,8 @@ class ChatbotWidget {
       .message .avatar { width: ${theme.avatarSize}px; height: ${theme.avatarSize}px; border-radius: ${theme.avatarBorderRadius}px; flex-shrink: 0; background-size: cover; background-position: center; }
       .message .avatar.letter { display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; }
       .message .bubble { padding: 10px 14px; border-radius: ${theme.messageBorderRadius}px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; }
+      .message .bubble p:first-child { margin-top: 0; }
+      .message .bubble p:last-child { margin-bottom: 0; }
       .message.bot { align-self: flex-start; }
       .message.bot .bubble { background: ${theme.botMessageBackgroundColor}; color: ${theme.botMessageTextColor}; }
       .message.user { align-self: flex-end; flex-direction: row-reverse; }
@@ -271,8 +274,10 @@ class ChatbotWidget {
 
       if (msg.thinking) {
         bubble.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
-      } else if(theme.renderHtml) {
-        bubble.innerHTML = msg.content;
+      } else if (theme.renderHtml && window.marked) {
+        bubble.innerHTML = window.marked.parse(msg.content || '');
+      } else if (theme.renderHtml) {
+        bubble.innerHTML = msg.content; // Fallback if marked fails
       } else {
         bubble.textContent = msg.content;
       }
@@ -300,26 +305,21 @@ class ChatbotWidget {
   
   // --- Event Handling ---
   addEventListeners() {
-    // Main Actions
     document.getElementById('chatbot-bubble').addEventListener('click', () => this.toggleChat());
     document.getElementById('chatbot-close').addEventListener('click', () => this.toggleChat(false));
     document.getElementById('chatbot-clear').addEventListener('click', () => this.clearChat());
     
-    // Input
     const input = document.getElementById('chatbot-input');
     input.addEventListener('input', e => { 
         this.inputValue = e.target.value; 
         this.updateCharacterCounter();
-        // Auto-resize textarea
         e.target.style.height = 'auto';
         e.target.style.height = (e.target.scrollHeight) + 'px';
     });
     input.addEventListener('keypress', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.sendMessage(); } });
     
-    // Send
     document.getElementById('chatbot-send').addEventListener('click', () => this.sendMessage());
     
-    // Prompts
     document.getElementById('starter-prompts').addEventListener('click', e => {
       if (e.target.classList.contains('starter-prompt')) {
         this.inputValue = e.target.textContent;
@@ -327,7 +327,6 @@ class ChatbotWidget {
       }
     });
     
-    // Tooltip
     const bubble = document.getElementById('chatbot-bubble');
     const tooltip = document.getElementById('chatbot-tooltip');
     if (tooltip) {
@@ -335,7 +334,6 @@ class ChatbotWidget {
         bubble.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
     }
 
-    // Drag and Resize
     const resizeHandle = document.getElementById('chatbot-resize-handle');
     const header = document.getElementById('chatbot-header');
     resizeHandle.addEventListener('mousedown', this.onResizeStart.bind(this));
@@ -360,13 +358,13 @@ class ChatbotWidget {
   sendMessage() {
     if (!this.inputValue.trim() || (this.config.theme.maxCharacters > 0 && this.inputValue.length > this.config.theme.maxCharacters)) return;
     this.messages.push({ type: 'user', content: this.inputValue });
-    this.messages.push({ type: 'bot', thinking: true });
+    this.messages.push({ type: 'bot', thinking: true, content: '' });
     this.updateMessages();
     this.sendToWebhook(this.inputValue);
     const input = document.getElementById('chatbot-input');
     this.inputValue = '';
     input.value = '';
-    input.style.height = 'auto'; // Reset height
+    input.style.height = 'auto';
     this.updateCharacterCounter();
   }
   
@@ -378,14 +376,11 @@ class ChatbotWidget {
 
   // --- Drag and Resize Handlers ---
   onResizeStart(e) {
-      e.preventDefault();
-      e.stopPropagation();
+      e.preventDefault(); e.stopPropagation();
       this.isResizing = true;
       const windowEl = document.getElementById('chatbot-window');
-      this.initialX = e.clientX;
-      this.initialY = e.clientY;
-      this.initialWidth = windowEl.offsetWidth;
-      this.initialHeight = windowEl.offsetHeight;
+      this.initialX = e.clientX; this.initialY = e.clientY;
+      this.initialWidth = windowEl.offsetWidth; this.initialHeight = windowEl.offsetHeight;
       this.onResizeMove = this.onResizeMove.bind(this);
       this.onResizeEnd = this.onResizeEnd.bind(this);
       document.addEventListener('mousemove', this.onResizeMove);
@@ -395,10 +390,8 @@ class ChatbotWidget {
   onResizeMove(e) {
       if (!this.isResizing) return;
       const windowEl = document.getElementById('chatbot-window');
-      const dx = e.clientX - this.initialX;
-      const dy = e.clientY - this.initialY;
-      const newWidth = this.initialWidth - dx;
-      const newHeight = this.initialHeight - dy;
+      const dx = e.clientX - this.initialX; const dy = e.clientY - this.initialY;
+      const newWidth = this.initialWidth - dx; const newHeight = this.initialHeight - dy;
       if (newWidth > 300) windowEl.style.width = `${newWidth}px`;
       if (newHeight > 200) windowEl.style.height = `${newHeight}px`;
   }
@@ -414,8 +407,7 @@ class ChatbotWidget {
       e.preventDefault();
       this.isDragging = true;
       const rootEl = document.getElementById('chatbot-root');
-      this.dragOffsetX = e.clientX - rootEl.offsetLeft;
-      this.dragOffsetY = e.clientY - rootEl.offsetTop;
+      this.dragOffsetX = e.clientX - rootEl.offsetLeft; this.dragOffsetY = e.clientY - rootEl.offsetTop;
       this.onDragMove = this.onDragMove.bind(this);
       this.onDragEnd = this.onDragEnd.bind(this);
       document.addEventListener('mousemove', this.onDragMove);
@@ -425,8 +417,7 @@ class ChatbotWidget {
   onDragMove(e) {
       if (!this.isDragging) return;
       const rootEl = document.getElementById('chatbot-root');
-      rootEl.style.right = 'auto';
-      rootEl.style.bottom = 'auto';
+      rootEl.style.right = 'auto'; rootEl.style.bottom = 'auto';
       rootEl.style.left = `${e.clientX - this.dragOffsetX}px`;
       rootEl.style.top = `${e.clientY - this.dragOffsetY}px`;
   }
@@ -481,6 +472,18 @@ class ChatbotWidget {
   }
   
   // --- Utilities ---
+  loadMarkdownConverter() {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+    script.onload = () => {
+      const renderer = new window.marked.Renderer();
+      renderer.link = (href, title, text) => `<a target="_blank" rel="noopener noreferrer" href="${href}" title="${title || ''}">${text}</a>`;
+      window.marked.use({ renderer, gfm: true, breaks: true });
+      this.updateMessages(); // Re-render messages now that 'marked' is available
+    };
+    document.head.appendChild(script);
+  }
+  
   injectCustomCSS(css) {
     const style = document.createElement('style');
     style.textContent = css;
