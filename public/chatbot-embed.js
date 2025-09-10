@@ -1,5 +1,5 @@
 /**
- * Custom Chatbot Embed Script V7 (Final)
+ * Custom Chatbot Embed Script V8 (Final)
  * A comprehensive embeddable chatbot widget with full feature and theming support.
  */
 class ChatbotWidget {
@@ -10,12 +10,15 @@ class ChatbotWidget {
     this.messages = [];
     this.container = null;
     this.inputValue = '';
-    // Resize properties
+    // Drag/Resize properties
     this.isResizing = false;
+    this.isDragging = false;
     this.initialX = 0;
     this.initialY = 0;
     this.initialWidth = 0;
     this.initialHeight = 0;
+    this.dragOffsetX = 0;
+    this.dragOffsetY = 0;
   }
 
   // --- Core Initialization ---
@@ -113,7 +116,7 @@ class ChatbotWidget {
         this.messages.push({ type: 'bot', content: initialMessage });
     }
     this.updateMessages();
-    this.updateCharacterCounter(); // Initial update for the counter
+    this.updateCharacterCounter();
   }
 
   createBubble() {
@@ -191,7 +194,7 @@ class ChatbotWidget {
       #chatbot-bubble { width: ${theme.bubbleSize}px; height: ${theme.bubbleSize}px; background: ${theme.bubbleColor}; border-radius: ${this.getBorderRadiusValue(theme.borderRadiusStyle)}; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.2s; }
       #chatbot-window { display: none; width: ${theme.windowWidth}px; height: ${theme.windowHeight}px; background: ${theme.backgroundColorWindow}; border-radius: ${theme.windowBorderRadius}px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); flex-direction: column; overflow: hidden; position: absolute; bottom: ${theme.bubbleSize + 10}px; right: 0; }
       #chatbot-window.open { display: flex; }
-      #chatbot-header { position: relative; display: flex; justify-content: space-between; align-items: center; padding: 12px; background: ${theme.backgroundColor}; color: ${theme.titleTextColor}; flex-shrink: 0; }
+      #chatbot-header { position: relative; display: flex; justify-content: space-between; align-items: center; padding: 12px; background: ${theme.backgroundColor}; color: ${theme.titleTextColor}; flex-shrink: 0; cursor: move; }
       #chatbot-resize-handle { position: absolute; top: 0; left: 0; width: 10px; height: 10px; cursor: nwse-resize; opacity: 0.2; }
       #chatbot-title { display: flex; align-items: center; gap: 8px; font-weight: 600; }
       #chatbot-header-icon-img { width: 24px; height: 24px; }
@@ -321,9 +324,11 @@ class ChatbotWidget {
         bubble.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
     }
 
-    // Drag to Resize
+    // Drag and Resize
     const resizeHandle = document.getElementById('chatbot-resize-handle');
+    const header = document.getElementById('chatbot-header');
     resizeHandle.addEventListener('mousedown', this.onResizeStart.bind(this));
+    header.addEventListener('mousedown', this.onDragStart.bind(this));
   }
   
   toggleChat(forceOpen = null) {
@@ -359,9 +364,10 @@ class ChatbotWidget {
       this.updateMessages();
   }
 
-  // --- Drag to Resize Handlers ---
+  // --- Drag and Resize Handlers ---
   onResizeStart(e) {
       e.preventDefault();
+      e.stopPropagation(); // Prevent drag from starting
       this.isResizing = true;
       const windowEl = document.getElementById('chatbot-window');
       this.initialX = e.clientX;
@@ -389,6 +395,34 @@ class ChatbotWidget {
       this.isResizing = false;
       document.removeEventListener('mousemove', this.onResizeMove);
       document.removeEventListener('mouseup', this.onResizeEnd);
+  }
+
+  onDragStart(e) {
+      if (e.target.closest('button')) return; // Don't drag if clicking a button in the header
+      e.preventDefault();
+      this.isDragging = true;
+      const rootEl = document.getElementById('chatbot-root');
+      this.dragOffsetX = e.clientX - rootEl.offsetLeft;
+      this.dragOffsetY = e.clientY - rootEl.offsetTop;
+      this.onDragMove = this.onDragMove.bind(this);
+      this.onDragEnd = this.onDragEnd.bind(this);
+      document.addEventListener('mousemove', this.onDragMove);
+      document.addEventListener('mouseup', this.onDragEnd);
+  }
+  
+  onDragMove(e) {
+      if (!this.isDragging) return;
+      const rootEl = document.getElementById('chatbot-root');
+      rootEl.style.right = 'auto';
+      rootEl.style.bottom = 'auto';
+      rootEl.style.left = `${e.clientX - this.dragOffsetX}px`;
+      rootEl.style.top = `${e.clientY - this.dragOffsetY}px`;
+  }
+  
+  onDragEnd() {
+      this.isDragging = false;
+      document.removeEventListener('mousemove', this.onDragMove);
+      document.removeEventListener('mouseup', this.onDragEnd);
   }
   
   // --- Data and API ---
