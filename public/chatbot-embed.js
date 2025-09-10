@@ -10,6 +10,7 @@ class ChatbotWidget {
     this.messages = [];
     this.container = null;
     this.inputValue = '';
+    this.sessionId = null; // Add sessionId property
     // Drag/Resize properties
     this.isResizing = false;
     this.isDragging = false;
@@ -24,9 +25,10 @@ class ChatbotWidget {
   // --- Core Initialization ---
   init(options) {
     this.mergeConfig(options);
-    this.loadMarkdownConverter(); // Load the new library
+    this.initializeSession(); // Initialize the session
+    this.loadMarkdownConverter();
     if (this.config.theme.clearChatOnReload) {
-      sessionStorage.removeItem(`chatbot_messages_${this.config.chatbotId}`);
+      sessionStorage.removeItem(`chatbot_messages_${this.sessionId}`);
     }
     this.loadMessages();
     this.createChatbot();
