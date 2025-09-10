@@ -1,14 +1,21 @@
 /**
- * Custom Chatbot Embed Script V4
+ * Custom Chatbot Embed Script V5 (Final)
  * A comprehensive embeddable chatbot widget with full feature and theming support.
  */
 class ChatbotWidget {
   constructor() {
+    // State properties
     this.config = {};
     this.isOpen = false;
     this.messages = [];
     this.container = null;
     this.inputValue = '';
+    // Resize properties
+    this.isResizing = false;
+    this.initialX = 0;
+    this.initialY = 0;
+    this.initialWidth = 0;
+    this.initialHeight = 0;
   }
 
   // --- Core Initialization ---
@@ -73,7 +80,7 @@ class ChatbotWidget {
       // Footer
       showFooter: false,
       footerText: 'Powered by Wharton',
-      // Unused/Advanced
+      // Advanced
       customCSS: '',
       webhookUrl: null,
       customErrorMessage: 'Sorry, I couldn\'t connect. Please try again.',
@@ -101,12 +108,10 @@ class ChatbotWidget {
     this.applyStyles();
     this.addEventListeners();
     
-    // Set initial message if none are loaded from session
     if (this.messages.length === 0) {
         const initialMessage = this.config.theme.welcomeMessage || 'Hello! How can I help you today?';
         this.messages.push({ type: 'bot', content: initialMessage });
     }
-
     this.updateMessages();
   }
 
@@ -145,16 +150,13 @@ class ChatbotWidget {
 
   createHeader() {
     const theme = this.config.theme;
-    let iconHtml = '';
-    // Use custom icon in header if available, otherwise default bot icon
-    if (theme.customIconUrl) {
-      iconHtml = `<img src="${theme.customIconUrl}" alt="Chatbot Icon" id="chatbot-header-icon-img" />`;
-    } else {
-      iconHtml = this.getIconSVG('bot');
-    }
+    let iconHtml = theme.customIconUrl 
+        ? `<img src="${theme.customIconUrl}" alt="Chatbot Icon" id="chatbot-header-icon-img" />`
+        : this.getIconSVG('bot');
 
     return `
       <div id="chatbot-header">
+        <div id="chatbot-resize-handle"></div>
         <div id="chatbot-title">
           ${iconHtml}
           <span id="chatbot-header-text">${theme.windowTitle}</span>
@@ -182,12 +184,12 @@ class ChatbotWidget {
     const theme = this.config.theme;
     const style = document.createElement('style');
     style.textContent = `
-      :root { --font-size: ${theme.fontSize}px; --window-width: ${theme.windowWidth}px; --window-height: ${theme.windowHeight}px; }
-      #chatbot-root { position: fixed; bottom: ${theme.bottomPosition}px; right: ${theme.rightPosition}px; z-index: 2147483647; font-size: var(--font-size); font-family: sans-serif; }
+      #chatbot-root { position: fixed; bottom: ${theme.bottomPosition}px; right: ${theme.rightPosition}px; z-index: 2147483647; font-size: ${theme.fontSize}px; font-family: sans-serif; }
       #chatbot-bubble { width: ${theme.bubbleSize}px; height: ${theme.bubbleSize}px; background: ${theme.bubbleColor}; border-radius: ${this.getBorderRadiusValue(theme.borderRadiusStyle)}; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.2s; }
-      #chatbot-window { display: none; width: var(--window-width); max-height: var(--window-height); background: ${theme.backgroundColorWindow}; border-radius: ${theme.windowBorderRadius}px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); flex-direction: column; overflow: hidden; position: absolute; bottom: ${theme.bubbleSize + 10}px; right: 0; }
+      #chatbot-window { display: none; width: ${theme.windowWidth}px; height: ${theme.windowHeight}px; background: ${theme.backgroundColorWindow}; border-radius: ${theme.windowBorderRadius}px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); flex-direction: column; overflow: hidden; position: absolute; bottom: ${theme.bubbleSize + 10}px; right: 0; }
       #chatbot-window.open { display: flex; }
-      #chatbot-header { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: ${theme.backgroundColor}; color: ${theme.titleTextColor}; flex-shrink: 0; }
+      #chatbot-header { position: relative; display: flex; justify-content: space-between; align-items: center; padding: 12px; background: ${theme.backgroundColor}; color: ${theme.titleTextColor}; flex-shrink: 0; }
+      #chatbot-resize-handle { position: absolute; top: 0; left: 0; width: 10px; height: 10px; cursor: nwse-resize; opacity: 0.2; }
       #chatbot-title { display: flex; align-items: center; gap: 8px; font-weight: 600; }
       #chatbot-header-icon-img { width: 24px; height: 24px; }
       #chatbot-header-buttons button { background: none; border: none; cursor: pointer; color: inherit; padding: 4px; opacity: 0.8; }
@@ -204,7 +206,7 @@ class ChatbotWidget {
       #starter-prompts { padding: 0 16px 8px; display: flex; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #e5e7eb; }
       .starter-prompt { padding: 6px 12px; background: ${theme.botMessageBackgroundColor}; color: ${theme.botMessageTextColor}; border: 1px solid #e5e7eb; border-radius: 16px; cursor: pointer; font-size: 0.9em; }
       #input-area { display: flex; align-items: center; padding: 10px; background: ${theme.textInputBackgroundColor}; border-top: 1px solid #e5e7eb; }
-      #chatbot-input { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: ${theme.textInputBorderRadius}px; outline: none; resize: none; font-size: 1em; background: transparent; color: ${theme.textInputTextColor}; }
+      #chatbot-input { flex: 1; border: 1px solid #ccc; border-radius: ${theme.textInputBorderRadius}px; padding: 8px; outline: none; resize: none; font-size: 1em; background: transparent; color: ${theme.textInputTextColor}; max-height: 100px; }
       #chatbot-send { background: ${theme.sendButtonColor}; color: white; border: none; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; margin-left: 8px; }
       #character-warning { color: red; font-size: 12px; padding: 0 12px 8px; text-align: right; display: none; background: ${theme.backgroundColorWindow}; }
       #chatbot-tooltip { display: none; position: absolute; right: ${theme.bubbleSize + 10}px; bottom: 50%; transform: translateY(50%); background: ${theme.tooltipBackgroundColor}; color: ${theme.tooltipTextColor}; padding: 8px 12px; border-radius: 6px; font-size: 15px; white-space: nowrap; }
@@ -252,11 +254,8 @@ class ChatbotWidget {
       
       const bubble = document.createElement('div');
       bubble.className = 'bubble';
-      if(theme.renderHtml) {
-        bubble.innerHTML = msg.content;
-      } else {
-        bubble.textContent = msg.content;
-      }
+      if(theme.renderHtml) bubble.innerHTML = msg.content;
+      else bubble.textContent = msg.content;
       
       messageEl.innerHTML = avatarHtml;
       messageEl.appendChild(bubble);
@@ -271,8 +270,8 @@ class ChatbotWidget {
     if (!warningEl) return;
     const charCount = this.inputValue.length;
     const limit = this.config.theme.maxCharacters;
-    if (charCount > limit) {
-      warningEl.textContent = this.config.theme.maxCharactersWarning;
+    if (limit > 0 && charCount > limit) {
+      warningEl.textContent = `${charCount}/${limit} - ${this.config.theme.maxCharactersWarning}`;
       warningEl.style.display = 'block';
     } else {
       warningEl.style.display = 'none';
@@ -281,15 +280,26 @@ class ChatbotWidget {
   
   // --- Event Handling ---
   addEventListeners() {
+    // Main Actions
     document.getElementById('chatbot-bubble').addEventListener('click', () => this.toggleChat());
     document.getElementById('chatbot-close').addEventListener('click', () => this.toggleChat(false));
     document.getElementById('chatbot-clear').addEventListener('click', () => this.clearChat());
     
+    // Input
     const input = document.getElementById('chatbot-input');
-    input.addEventListener('input', e => { this.inputValue = e.target.value; this.updateCharacterWarning(); });
+    input.addEventListener('input', e => { 
+        this.inputValue = e.target.value; 
+        this.updateCharacterWarning();
+        // Auto-resize textarea
+        e.target.style.height = 'auto';
+        e.target.style.height = (e.target.scrollHeight) + 'px';
+    });
     input.addEventListener('keypress', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.sendMessage(); } });
     
+    // Send
     document.getElementById('chatbot-send').addEventListener('click', () => this.sendMessage());
+    
+    // Prompts
     document.getElementById('starter-prompts').addEventListener('click', e => {
       if (e.target.classList.contains('starter-prompt')) {
         this.inputValue = e.target.textContent;
@@ -297,12 +307,17 @@ class ChatbotWidget {
       }
     });
     
+    // Tooltip
     const bubble = document.getElementById('chatbot-bubble');
     const tooltip = document.getElementById('chatbot-tooltip');
     if (tooltip) {
         bubble.addEventListener('mouseenter', () => { if (!this.isOpen) tooltip.style.display = 'block'; });
         bubble.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
     }
+
+    // Drag to Resize
+    const resizeHandle = document.getElementById('chatbot-resize-handle');
+    resizeHandle.addEventListener('mousedown', this.onResizeStart.bind(this));
   }
   
   toggleChat(forceOpen = null) {
@@ -321,12 +336,14 @@ class ChatbotWidget {
   }
 
   sendMessage() {
-    if (!this.inputValue.trim() || this.inputValue.length > this.config.theme.maxCharacters) return;
+    if (!this.inputValue.trim() || (this.config.theme.maxCharacters > 0 && this.inputValue.length > this.config.theme.maxCharacters)) return;
     this.messages.push({ type: 'user', content: this.inputValue });
     this.updateMessages();
     this.sendToWebhook(this.inputValue);
+    const input = document.getElementById('chatbot-input');
     this.inputValue = '';
-    document.getElementById('chatbot-input').value = '';
+    input.value = '';
+    input.style.height = 'auto'; // Reset height
     this.updateCharacterWarning();
   }
   
@@ -336,6 +353,36 @@ class ChatbotWidget {
       this.updateMessages();
   }
 
+  // --- Drag to Resize Handlers ---
+  onResizeStart(e) {
+      e.preventDefault();
+      this.isResizing = true;
+      const windowEl = document.getElementById('chatbot-window');
+      this.initialX = e.clientX;
+      this.initialY = e.clientY;
+      this.initialWidth = windowEl.offsetWidth;
+      this.initialHeight = windowEl.offsetHeight;
+      document.addEventListener('mousemove', this.onResizeMove.bind(this));
+      document.addEventListener('mouseup', this.onResizeEnd.bind(this));
+  }
+
+  onResizeMove(e) {
+      if (!this.isResizing) return;
+      const windowEl = document.getElementById('chatbot-window');
+      const dx = e.clientX - this.initialX;
+      const dy = e.clientY - this.initialY;
+      const newWidth = this.initialWidth - dx;
+      const newHeight = this.initialHeight - dy;
+      if (newWidth > 300) windowEl.style.width = `${newWidth}px`;
+      if (newHeight > 200) windowEl.style.height = `${newHeight}px`;
+  }
+
+  onResizeEnd() {
+      this.isResizing = false;
+      document.removeEventListener('mousemove', this.onResizeMove.bind(this));
+      document.removeEventListener('mouseup', this.onResizeEnd.bind(this));
+  }
+  
   // --- Data and API ---
   saveMessages() {
     sessionStorage.setItem(`chatbot_messages_${this.config.chatbotId}`, JSON.stringify(this.messages));
@@ -343,24 +390,19 @@ class ChatbotWidget {
 
   loadMessages() {
     const saved = sessionStorage.getItem(`chatbot_messages_${this.config.chatbotId}`);
-    if (saved) {
-      this.messages = JSON.parse(saved);
-    }
+    if (saved) this.messages = JSON.parse(saved);
   }
 
   async sendToWebhook(message) {
     try {
       if (!this.config.chatbotId || !this.config.routingUrl) throw new Error('Chatbot not configured.');
-      
       const response = await fetch(`${this.config.routingUrl}/${this.config.chatbotId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chatInput: message, ...this.config.metadata })
       });
-      
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'API Error');
-
       const botResponse = data.output || 'Sorry, I encountered an issue.';
       this.messages.push({ type: 'bot', content: botResponse });
       this.updateMessages();
@@ -379,7 +421,7 @@ class ChatbotWidget {
   }
 
   getBorderRadiusValue(style) {
-      const map = { rounded: '12px', circle: '50%', none: '0px' };
+      const map = { rounded: '16px', circle: '50%', none: '0px' };
       return map[style] || '50%';
   }
 
