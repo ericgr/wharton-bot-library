@@ -162,11 +162,11 @@ class ChatbotWidget {
   }
 
   getTooltipPosition() {
-    const rightPosition = this.config.theme.rightPosition || 20;
+    const position = this.config.theme.bubblePosition || 'bottom-right';
     const bubbleSize = this.config.theme.bubbleSize || 50;
     
-    // Check if bubble is positioned more towards the right side of screen
-    if (rightPosition < window.innerWidth / 2) {
+    // Position tooltip based on bubble position
+    if (position.includes('right')) {
       return `right: ${bubbleSize + 10}px; bottom: 50%; transform: translateY(50%);`;
     } else {
       return `left: ${bubbleSize + 10}px; bottom: 50%; transform: translateY(50%);`;
@@ -290,12 +290,12 @@ class ChatbotWidget {
   }
 
   getWindowPosition() {
-    const bottomPosition = this.config.theme.bottomPosition || 20;
+    const position = this.config.theme.bubblePosition || 'bottom-right';
     const bubbleSize = this.config.theme.bubbleSize || 50;
     const windowHeight = this.config.theme.windowHeight || 600;
     
-    // Position window based on bubble's bottom position
-    if (bottomPosition < window.innerHeight / 2) {
+    // Position window based on bubble position
+    if (position.includes('bottom')) {
       return `bottom: ${bubbleSize + 10}px;`;
     } else {
       return `top: ${bubbleSize + 10}px;`;
