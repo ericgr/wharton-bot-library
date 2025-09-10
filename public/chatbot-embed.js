@@ -1,5 +1,5 @@
 /**
- * Custom Chatbot Embed Script V8 (Final)
+ * Custom Chatbot Embed Script V9 (Final)
  * A comprehensive embeddable chatbot widget with full feature and theming support.
  */
 class ChatbotWidget {
@@ -10,6 +10,7 @@ class ChatbotWidget {
     this.messages = [];
     this.container = null;
     this.inputValue = '';
+    this.sessionId = null;
     // Drag/Resize properties
     this.isResizing = false;
     this.isDragging = false;
@@ -24,8 +25,9 @@ class ChatbotWidget {
   // --- Core Initialization ---
   init(options) {
     this.mergeConfig(options);
+    this.initializeSession();
     if (this.config.theme.clearChatOnReload) {
-      sessionStorage.removeItem(`chatbot_messages_${this.config.chatbotId}`);
+      sessionStorage.removeItem(`chatbot_messages_${this.sessionId}`);
     }
     this.loadMessages();
     this.createChatbot();
@@ -367,7 +369,7 @@ class ChatbotWidget {
   // --- Drag and Resize Handlers ---
   onResizeStart(e) {
       e.preventDefault();
-      e.stopPropagation(); // Prevent drag from starting
+      e.stopPropagation();
       this.isResizing = true;
       const windowEl = document.getElementById('chatbot-window');
       this.initialX = e.clientX;
@@ -398,7 +400,7 @@ class ChatbotWidget {
   }
 
   onDragStart(e) {
-      if (e.target.closest('button')) return; // Don't drag if clicking a button in the header
+      if (e.target.closest('button') || e.target.id === 'chatbot-resize-handle') return;
       e.preventDefault();
       this.isDragging = true;
       const rootEl = document.getElementById('chatbot-root');
@@ -426,12 +428,21 @@ class ChatbotWidget {
   }
   
   // --- Data and API ---
+  initializeSession() {
+    let sessionId = sessionStorage.getItem(`chatbot_session_${this.config.chatbotId}`);
+    if (!sessionId) {
+      sessionId = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+      sessionStorage.setItem(`chatbot_session_${this.config.chatbotId}`, sessionId);
+    }
+    this.sessionId = sessionId;
+  }
+
   saveMessages() {
-    sessionStorage.setItem(`chatbot_messages_${this.config.chatbotId}`, JSON.stringify(this.messages));
+    sessionStorage.setItem(`chatbot_messages_${this.sessionId}`, JSON.stringify(this.messages));
   }
 
   loadMessages() {
-    const saved = sessionStorage.getItem(`chatbot_messages_${this.config.chatbotId}`);
+    const saved = sessionStorage.getItem(`chatbot_messages_${this.sessionId}`);
     if (saved) this.messages = JSON.parse(saved);
   }
 
@@ -441,7 +452,7 @@ class ChatbotWidget {
       const response = await fetch(`${this.config.routingUrl}/${this.config.chatbotId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chatInput: message, ...this.config.metadata })
+        body: JSON.stringify({ chatInput: message, sessionId: this.sessionId, ...this.config.metadata })
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'API Error');
@@ -473,7 +484,7 @@ class ChatbotWidget {
     const icons = {
       'bot': `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${iconColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>`,
       'message-circle': `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/></svg>`,
-      'close': `<svg xmlns="http://www.w.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`,
+      'close': `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`,
       'send': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>`,
       'rotate-ccw': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`,
       'close-window': `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`
