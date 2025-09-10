@@ -19,6 +19,7 @@ const ChatbotBuilder = () => {
   const { user } = useAuth();
   const { config, updateConfig, setFullConfig, resetConfig } = useChatbotConfig();
   const [chatbotName, setChatbotName] = useState("");
+  const [chatbotId, setChatbotId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
@@ -48,6 +49,7 @@ const ChatbotBuilder = () => {
 
       console.log("Loaded chatbot data:", data);
       setChatbotName(data.name);
+      setChatbotId(data.id);
       
       // Use the loaded config directly, don't merge with current state
       const loadedConfig = data.config as any;
@@ -102,11 +104,15 @@ const ChatbotBuilder = () => {
         });
       } else {
         // Create new chatbot
-        const { error } = await supabase
+        const { data: newChatbot, error } = await supabase
           .from("chatbot_configs")
-          .insert(chatbotData);
+          .insert(chatbotData)
+          .select("id")
+          .single();
 
         if (error) throw error;
+
+        setChatbotId(newChatbot.id);
 
         toast({
           title: "Success",
@@ -182,7 +188,7 @@ const ChatbotBuilder = () => {
             </CardContent>
           </Card>
 
-          <ChatbotBuilderComponent config={config} updateConfig={updateConfig} setFullConfig={setFullConfig} />
+          <ChatbotBuilderComponent config={config} updateConfig={updateConfig} setFullConfig={setFullConfig} chatbotId={chatbotId} />
         </div>
       </div>
     </AuthGuard>

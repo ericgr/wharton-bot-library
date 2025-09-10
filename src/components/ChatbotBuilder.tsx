@@ -19,9 +19,10 @@ interface ChatbotBuilderProps {
   config?: ChatbotConfig;
   updateConfig?: (updates: Partial<ChatbotConfig>) => void;
   setFullConfig?: (config: ChatbotConfig) => void;
+  chatbotId?: string | null;
 }
 
-export const ChatbotBuilder = ({ config: propConfig, updateConfig: propUpdateConfig }: ChatbotBuilderProps) => {
+export const ChatbotBuilder = ({ config: propConfig, updateConfig: propUpdateConfig, chatbotId }: ChatbotBuilderProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [copied, setCopied] = useState(false);
   const [mode, setMode] = useState<"popup" | "inpage">("popup");
@@ -32,15 +33,14 @@ export const ChatbotBuilder = ({ config: propConfig, updateConfig: propUpdateCon
   const updateConfig = propUpdateConfig || hookResult.updateConfig;
 
   const handleCopyCode = async () => {
-    // Generate a unique chatbot ID for this configuration
-    const chatbotId = crypto.randomUUID();
+    const chatbotIdToUse = chatbotId || "your-unique-chatbot-id";
     
     let embedCode;
     if (mode === "popup") {
       embedCode = `<script src="https://chatbot.headstartmarketingplatform.com/chatbot-embed.js"></script>
 <script>
 Chatbot.init({
-  chatbotId: "${chatbotId}",
+  chatbotId: "${chatbotIdToUse}",
   routingUrl: "https://jppjdfmeblnmfdowpumn.supabase.co/functions/v1/chat",
   metadata: {},
   theme: ${JSON.stringify(config, null, 2)}
@@ -51,7 +51,7 @@ Chatbot.init({
 <kmtbot-inpage></kmtbot-inpage>
 <script>
 Chatbot.init({
-  chatbotId: "${chatbotId}",
+  chatbotId: "${chatbotIdToUse}",
   routingUrl: "https://jppjdfmeblnmfdowpumn.supabase.co/functions/v1/chat",
   metadata: {},
   theme: ${JSON.stringify(config, null, 2)}
@@ -268,12 +268,12 @@ Chatbot.init({
                       </div>
                       
                        <div className="relative">
-                        <pre className="bg-slate-900 text-green-400 p-4 rounded-lg text-sm overflow-auto max-h-96">
+                         <pre className="bg-slate-900 text-green-400 p-4 rounded-lg text-sm overflow-auto max-h-96">
 {mode === "popup" ? 
 `<script src="https://chatbot.headstartmarketingplatform.com/chatbot-embed.js"></script>
 <script>
 Chatbot.init({
-  chatbotId: "your-unique-chatbot-id",
+  chatbotId: "${chatbotId || 'your-unique-chatbot-id'}",
   routingUrl: "https://jppjdfmeblnmfdowpumn.supabase.co/functions/v1/chat",
   metadata: {},
   theme: ${JSON.stringify(config, null, 2)}
@@ -282,13 +282,13 @@ Chatbot.init({
 `<script src="https://chatbot.headstartmarketingplatform.com/chatbot-embed.js"></script>
 <script>
 Chatbot.init({
-  chatbotId: "your-unique-chatbot-id",
+  chatbotId: "${chatbotId || 'your-unique-chatbot-id'}",
   routingUrl: "https://jppjdfmeblnmfdowpumn.supabase.co/functions/v1/chat",
   metadata: {},
   theme: ${JSON.stringify(config, null, 2)}
 });
 </script>`}
-                        </pre>
+                         </pre>
                         <Button
                           size="sm"
                           variant="outline"
