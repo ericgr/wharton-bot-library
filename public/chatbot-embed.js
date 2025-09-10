@@ -10,7 +10,6 @@ class ChatbotWidget {
     this.messages = [];
     this.container = null;
     this.inputValue = '';
-    this.sessionId = null;
     // Drag/Resize properties
     this.isResizing = false;
     this.isDragging = false;
@@ -25,9 +24,8 @@ class ChatbotWidget {
   // --- Core Initialization ---
   init(options) {
     this.mergeConfig(options);
-    this.initializeSession();
     if (this.config.theme.clearChatOnReload) {
-      sessionStorage.removeItem(`chatbot_messages_${this.sessionId}`);
+      sessionStorage.removeItem(`chatbot_messages_${this.config.chatbotId}`);
     }
     this.loadMessages();
     this.createChatbot();
@@ -223,6 +221,11 @@ class ChatbotWidget {
       #chatbot-tooltip { display: none; position: absolute; right: ${theme.bubbleSize + 10}px; bottom: 50%; transform: translateY(50%); background: ${theme.tooltipBackgroundColor}; color: ${theme.tooltipTextColor}; padding: 8px 12px; border-radius: 6px; font-size: 15px; white-space: nowrap; }
       #chatbot-bubble:hover + #chatbot-tooltip { display: block; }
       #chatbot-footer { padding: 8px; text-align: center; font-size: 12px; color: ${theme.footerTextColor}; background: ${theme.footerBackgroundColor}; border-top: 1px solid #e5e7eb; }
+      .typing-indicator { display: flex; align-items: center; justify-content: center; padding: 10px; }
+      .typing-indicator span { height: 8px; width: 8px; background: #9ca3af; border-radius: 50%; margin: 0 2px; animation: typing-blink 1.4s infinite both; }
+      .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+      .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+      @keyframes typing-blink { 0% { opacity: 0.2; } 20% { opacity: 1; } 100% { opacity: 0.2; } }
     `;
     document.head.appendChild(style);
     if (theme.customCSS) this.injectCustomCSS(theme.customCSS);
@@ -265,8 +268,14 @@ class ChatbotWidget {
       
       const bubble = document.createElement('div');
       bubble.className = 'bubble';
-      if(theme.renderHtml) bubble.innerHTML = msg.content;
-      else bubble.textContent = msg.content;
+
+      if (msg.thinking) {
+        bubble.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+      } else if(theme.renderHtml) {
+        bubble.innerHTML = msg.content;
+      } else {
+        bubble.textContent = msg.content;
+      }
       
       messageEl.innerHTML = avatarHtml;
       messageEl.appendChild(bubble);
@@ -351,6 +360,7 @@ class ChatbotWidget {
   sendMessage() {
     if (!this.inputValue.trim() || (this.config.theme.maxCharacters > 0 && this.inputValue.length > this.config.theme.maxCharacters)) return;
     this.messages.push({ type: 'user', content: this.inputValue });
+    this.messages.push({ type: 'bot', thinking: true });
     this.updateMessages();
     this.sendToWebhook(this.inputValue);
     const input = document.getElementById('chatbot-input');
@@ -429,12 +439,11 @@ class ChatbotWidget {
   
   // --- Data and API ---
   initializeSession() {
-    let sessionId = sessionStorage.getItem(`chatbot_session_${this.config.chatbotId}`);
-    if (!sessionId) {
-      sessionId = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-      sessionStorage.setItem(`chatbot_session_${this.config.chatbotId}`, sessionId);
+    this.sessionId = sessionStorage.getItem(`chatbot_session_${this.config.chatbotId}`);
+    if (!this.sessionId) {
+      this.sessionId = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+      sessionStorage.setItem(`chatbot_session_${this.config.chatbotId}`, this.sessionId);
     }
-    this.sessionId = sessionId;
   }
 
   saveMessages() {
@@ -449,18 +458,23 @@ class ChatbotWidget {
   async sendToWebhook(message) {
     try {
       if (!this.config.chatbotId || !this.config.routingUrl) throw new Error('Chatbot not configured.');
+      
       const response = await fetch(`${this.config.routingUrl}/${this.config.chatbotId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chatInput: message, sessionId: this.sessionId, ...this.config.metadata })
       });
+      
+      this.messages = this.messages.filter(m => !m.thinking);
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'API Error');
+
       const botResponse = data.output || 'Sorry, I encountered an issue.';
       this.messages.push({ type: 'bot', content: botResponse });
       this.updateMessages();
     } catch (error) {
       console.error('Webhook Error:', error);
+      this.messages = this.messages.filter(m => !m.thinking);
       this.messages.push({ type: 'bot', content: this.config.theme.customErrorMessage });
       this.updateMessages();
     }
