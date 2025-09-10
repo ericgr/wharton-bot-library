@@ -100,8 +100,8 @@ class ChatbotWidget {
       ${this.getPositionStyles()}
     `;
 
-    // Create tooltip
-    if (this.config.theme.showTooltip) {
+    // Create tooltip - Check if showTooltip is explicitly true
+    if (this.config.theme.showTooltip === true) {
       this.createTooltip();
     }
 
@@ -250,8 +250,8 @@ class ChatbotWidget {
       ${this.getWindowPosition()}
     `;
 
-    // Header
-    if (this.config.theme.showTitleSection) {
+    // Header - Check if showTitleSection is explicitly true
+    if (this.config.theme.showTitleSection === true) {
       const header = this.createHeader();
       window.appendChild(header);
     }
@@ -269,8 +269,8 @@ class ChatbotWidget {
     `;
     window.appendChild(messagesContainer);
 
-    // Starter prompts
-    if (this.config.theme.starterPrompts && this.config.theme.starterPrompts.length > 0) {
+    // Starter prompts - Check if array exists and has elements
+    if (Array.isArray(this.config.theme.starterPrompts) && this.config.theme.starterPrompts.length > 0) {
       const promptsContainer = this.createStarterPrompts();
       window.appendChild(promptsContainer);
     }
@@ -279,8 +279,8 @@ class ChatbotWidget {
     const inputArea = this.createInputArea();
     window.appendChild(inputArea);
 
-    // Footer
-    if (this.config.theme.showFooter) {
+    // Footer - Check if showFooter is explicitly true
+    if (this.config.theme.showFooter === true) {
       const footer = this.createFooter();
       window.appendChild(footer);
     }
@@ -345,7 +345,9 @@ class ChatbotWidget {
       gap: 8px;
     `;
 
-    this.config.theme.starterPrompts.forEach(prompt => {
+    // Safely iterate through starter prompts
+    const prompts = Array.isArray(this.config.theme.starterPrompts) ? this.config.theme.starterPrompts : [];
+    prompts.forEach(prompt => {
       const button = document.createElement('button');
       button.style.cssText = `
         padding: 8px 12px;
@@ -450,12 +452,16 @@ class ChatbotWidget {
       background: #f9fafb;
     `;
 
+    // Safely handle footer text and link
+    const footerText = this.config.theme.footerText || 'Powered by Chatbot';
+    const footerLink = this.config.theme.footerLink || '#';
+
     footer.innerHTML = `
-      <a href="${this.config.theme.footerLink}" target="_blank" style="
+      <a href="${footerLink}" target="_blank" style="
         color: #6b7280;
         text-decoration: none;
         font-size: 12px;
-      ">${this.config.theme.footerText}</a>
+      ">${footerText}</a>
     `;
 
     return footer;
