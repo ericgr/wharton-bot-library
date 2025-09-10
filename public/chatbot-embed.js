@@ -162,10 +162,11 @@ class ChatbotWidget {
   }
 
   getTooltipPosition() {
-    const position = this.config.theme.bubblePosition;
-    const bubbleSize = this.config.theme.bubbleSize;
+    const rightPosition = this.config.theme.rightPosition || 20;
+    const bubbleSize = this.config.theme.bubbleSize || 50;
     
-    if (position.includes('right')) {
+    // Check if bubble is positioned more towards the right side of screen
+    if (rightPosition < window.innerWidth / 2) {
       return `right: ${bubbleSize + 10}px; bottom: 50%; transform: translateY(50%);`;
     } else {
       return `left: ${bubbleSize + 10}px; bottom: 50%; transform: translateY(50%);`;
