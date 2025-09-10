@@ -15,14 +15,7 @@ class ChatbotWidget {
   init(options) {
     console.log('Chatbot options received:', options); // You can remove this line later
 
-    // A temporary object to hold the merged top-level settings
-    const tempConfig = {
-      ...this.config, // Start with the initial defaults
-      ...options      // Override with top-level settings from the embed (like chatbotId)
-    };
-
-    // Define default theme structure within the constructor or a static property if not already present
-    // For this fix, we'll assume the defaults are set on this.config before this method
+    // Define the default theme structure
     const defaultTheme = {
         // Bubble
         bubbleIcon: 'MessageCircle',
@@ -33,13 +26,11 @@ class ChatbotWidget {
         bubbleBorderRadius: 'full',
         autoOpenBot: false,
         openDelay: 3000,
-
         // Tooltip
         showTooltip: true,
         tooltipText: 'Hi there! 👋 How can I help you today?',
         tooltipBackgroundColor: '#1f2937',
         tooltipTextColor: '#ffffff',
-
         // Window
         windowTitle: 'Chat with us',
         windowIcon: 'Bot',
@@ -52,36 +43,43 @@ class ChatbotWidget {
         avatarSize: 40,
         avatarBorderRadius: 50,
         messageBorderRadius: 12,
-
+        // Message Colors
+        botMessageBackgroundColor: '#f5f5f5',
+        botMessageTextColor: '#333333',
+        userMessageBackgroundColor: '#e3f2fd',
+        userMessageTextColor: '#1976d2',
         // Text Input
         placeholderText: 'Type your message...',
         sendButtonColor: '#3b82f6',
         maxCharacters: 1000,
         showCharacterWarning: true,
         maxCharactersWarningMessage: 'Character limit exceeded',
-
         // Footer
         showFooter: true,
         footerText: 'Powered by n8n',
         footerLink: 'https://n8n.io',
-
         // Advanced
         webhookUrl: '',
         customCSS: '',
         starterPrompts: []
     };
     
+    // A temporary object to hold the merged top-level settings
+    const tempConfig = {
+      ...this.config,
+      ...options
+    };
+
     // Now, specifically merge the 'theme' objects
     tempConfig.theme = {
-      ...defaultTheme,         // Start with the default theme
-      ...options.theme         // Override with the custom theme settings from the embed
+      ...defaultTheme,
+      ...options.theme
     };
 
     // Finally, assign the correctly merged configuration
     this.config = tempConfig;
 
-    // Also, fix property name mismatches to be safe.
-    // Your embed might use 'titleText' but the code uses 'windowTitle'. This makes them compatible.
+    // Fix property name mismatches for compatibility
     if (this.config.theme.titleText) {
       this.config.theme.windowTitle = this.config.theme.titleText;
     }
@@ -132,10 +130,11 @@ class ChatbotWidget {
     // Create bubble button
     this.createBubbleButton();
 
-    // Add initial message
+    // Add initial message from theme if available
+    const initialMessage = this.config.theme.welcomeMessage || 'Hello! How can I help you today?';
     this.messages = [{
       type: 'bot',
-      content: 'Hello! How can I help you today?',
+      content: initialMessage,
       timestamp: new Date()
     }];
 
@@ -260,7 +259,6 @@ class ChatbotWidget {
     const window = document.createElement('div');
     window.id = 'chatbot-window';
     window.style.cssText = `
-      position: absolute;
       width: ${this.config.theme.windowWidth}px;
       height: ${this.config.theme.windowHeight}px;
       background: ${this.config.theme.windowBackgroundColor};
@@ -380,7 +378,7 @@ class ChatbotWidget {
         text-align: left;
         cursor: pointer;
         font-size: 14px;
-        color: ${this.config.theme.windowTextColor};
+        color: ${this.config.theme.botMessageTextColor};
         transition: background-color 0.2s;
       `;
       button.textContent = prompt;
@@ -683,8 +681,8 @@ class ChatbotWidget {
       // Message bubble
       const bubble = document.createElement('div');
       bubble.style.cssText = `
-        background: ${msg.type === 'user' ? '#3b82f6' : '#f3f4f6'};
-        color: ${msg.type === 'user' ? 'white' : this.config.theme.windowTextColor};
+        background: ${msg.type === 'user' ? this.config.theme.userMessageBackgroundColor : this.config.theme.botMessageBackgroundColor};
+        color: ${msg.type === 'user' ? this.config.theme.userMessageTextColor : this.config.theme.botMessageTextColor};
         padding: 12px 16px;
         border-radius: ${this.config.theme.messageBorderRadius}px;
         max-width: 80%;
