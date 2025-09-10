@@ -290,11 +290,12 @@ class ChatbotWidget {
   }
 
   getWindowPosition() {
-    const position = this.config.theme.bubblePosition;
-    const bubbleSize = this.config.theme.bubbleSize;
-    const windowHeight = this.config.theme.windowHeight;
+    const bottomPosition = this.config.theme.bottomPosition || 20;
+    const bubbleSize = this.config.theme.bubbleSize || 50;
+    const windowHeight = this.config.theme.windowHeight || 600;
     
-    if (position.includes('bottom')) {
+    // Position window based on bubble's bottom position
+    if (bottomPosition < window.innerHeight / 2) {
       return `bottom: ${bubbleSize + 10}px;`;
     } else {
       return `top: ${bubbleSize + 10}px;`;
