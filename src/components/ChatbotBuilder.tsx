@@ -33,7 +33,7 @@ export const ChatbotBuilder = ({ config: propConfig, updateConfig: propUpdateCon
   const updateConfig = propUpdateConfig || hookResult.updateConfig;
 
   const handleCopyCode = async () => {
-    const chatbotIdToUse = chatbotId || "your-unique-chatbot-id";
+    const chatbotIdToUse = config.chatbotId || chatbotId || "your-unique-chatbot-id";
     
     let embedCode;
     if (mode === "popup") {
@@ -273,7 +273,7 @@ Chatbot.init({
 `<script src="https://chatbot.headstartmarketingplatform.com/chatbot-embed.js"></script>
 <script>
 Chatbot.init({
-  chatbotId: "${chatbotId || 'your-unique-chatbot-id'}",
+  chatbotId: "${config.chatbotId || chatbotId || 'your-unique-chatbot-id'}",
   routingUrl: "https://jppjdfmeblnmfdowpumn.supabase.co/functions/v1/chat",
   metadata: {},
   theme: ${JSON.stringify(config, null, 2)}
@@ -282,7 +282,7 @@ Chatbot.init({
 `<script src="https://chatbot.headstartmarketingplatform.com/chatbot-embed.js"></script>
 <script>
 Chatbot.init({
-  chatbotId: "${chatbotId || 'your-unique-chatbot-id'}",
+  chatbotId: "${config.chatbotId || chatbotId || 'your-unique-chatbot-id'}",
   routingUrl: "https://jppjdfmeblnmfdowpumn.supabase.co/functions/v1/chat",
   metadata: {},
   theme: ${JSON.stringify(config, null, 2)}

@@ -113,6 +113,9 @@ const ChatbotBuilder = () => {
         if (error) throw error;
 
         setChatbotId(newChatbot.id);
+        
+        // Update the config with the new chatbot ID
+        updateConfig({ chatbotId: newChatbot.id });
 
         toast({
           title: "Success",

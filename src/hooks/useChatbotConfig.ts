@@ -75,6 +75,7 @@ export interface ChatbotConfig {
   // Advanced settings
   customCSS: string;
   webhookUrl: string;
+  chatbotId?: string;
 }
 
 const defaultConfig: ChatbotConfig = {
@@ -150,7 +151,8 @@ const defaultConfig: ChatbotConfig = {
 
   // Advanced defaults
   customCSS: "",
-  webhookUrl: ""
+  webhookUrl: "",
+  chatbotId: undefined
 };
 
 export const useChatbotConfig = () => {
