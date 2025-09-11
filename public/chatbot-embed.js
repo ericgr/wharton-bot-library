@@ -1,5 +1,5 @@
 /**
- * Custom Chatbot Embed Script V13 (Final with Max Specificity)
+ * Custom Chatbot Embed Script V13 (Final with Direct HTML Rendering)
  * A comprehensive embeddable chatbot widget with full feature and theming support.
  */
 class ChatbotWidget {
@@ -26,7 +26,6 @@ class ChatbotWidget {
   init(options) {
     this.mergeConfig(options);
     this.initializeSession(); 
-    this.loadMarkdownConverter();
     if (this.config.theme.clearChatOnReload) {
       sessionStorage.removeItem(`chatbot_messages_${this.sessionId}`);
     }
@@ -194,6 +193,7 @@ class ChatbotWidget {
     const style = document.createElement('style');
     style.textContent = `
       #chatbot-root { position: fixed; bottom: ${theme.bottomPosition}px; right: ${theme.rightPosition}px; z-index: 2147483647; font-size: 16px; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; }
+      #chatbot-root *, #chatbot-root *::before, #chatbot-root *::after { box-sizing: border-box; }
       #chatbot-root #chatbot-bubble { width: ${theme.bubbleSize}px; height: ${theme.bubbleSize}px; background: ${theme.bubbleColor}; border-radius: ${this.getBorderRadiusValue(theme.borderRadiusStyle)}; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.2s; }
       #chatbot-root #chatbot-window { display: none; width: ${theme.windowWidth}px; height: ${theme.windowHeight}px; background: ${theme.backgroundColorWindow}; border-radius: ${theme.windowBorderRadius}px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); flex-direction: column; overflow: hidden; position: absolute; bottom: ${theme.bubbleSize + 10}px; right: 0; }
       #chatbot-root #chatbot-window.open { display: flex; }
@@ -279,10 +279,8 @@ class ChatbotWidget {
 
       if (msg.thinking) {
         bubble.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
-      } else if (theme.renderHtml && window.marked) {
-        bubble.innerHTML = window.marked.parse(msg.content || '');
       } else if (theme.renderHtml) {
-        bubble.innerHTML = msg.content;
+        bubble.innerHTML = msg.content || '';
       } else {
         bubble.textContent = msg.content;
       }
@@ -477,22 +475,6 @@ class ChatbotWidget {
   }
   
   // --- Utilities ---
-  loadMarkdownConverter() {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
-    script.onload = () => {
-      const renderer = new window.marked.Renderer();
-      const originalLinkRenderer = renderer.link;
-      renderer.link = function(href, title, text) {
-          const link = originalLinkRenderer.call(this, href, title, text);
-          return link.replace(/^<a/, '<a target="_blank" rel="noopener noreferrer"');
-      };
-      window.marked.use({ renderer, gfm: true, breaks: true });
-      this.updateMessages(); // Re-render any existing messages
-    };
-    document.head.appendChild(script);
-  }
-  
   injectCustomCSS(css) {
     const style = document.createElement('style');
     style.textContent = css;
