@@ -1,5 +1,5 @@
 /**
- * Custom Chatbot Embed Script V11 (with Link Debugging)
+ * Custom Chatbot Embed Script V12 (Final with Markdown Fix)
  * A comprehensive embeddable chatbot widget with full feature and theming support.
  */
 class ChatbotWidget {
@@ -479,11 +479,9 @@ class ChatbotWidget {
     script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
     script.onload = () => {
       const renderer = new window.marked.Renderer();
-      // This is the new, robust link renderer function
-      renderer.link = function(href, title, text) {
-          // Get the default link HTML from the library
-          let link = this.parser.renderer.link.call(this, href, title, text);
-          // Modify it to add the target="_blank" attribute
+      const originalLinkRenderer = renderer.link;
+      renderer.link = (href, title, text) => {
+          const link = originalLinkRenderer.call(renderer, href, title, text);
           return link.replace(/^<a/, '<a target="_blank" rel="noopener noreferrer"');
       };
       window.marked.use({ renderer, gfm: true, breaks: true });
