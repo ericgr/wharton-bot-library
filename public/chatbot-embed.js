@@ -1,5 +1,5 @@
 /**
- * Custom Chatbot Embed Script V13 (Final with Direct HTML Rendering)
+ * Custom Chatbot Embed Script V14 (Final with CSS Namespacing)
  * A comprehensive embeddable chatbot widget with full feature and theming support.
  */
 class ChatbotWidget {
@@ -25,7 +25,8 @@ class ChatbotWidget {
   // --- Core Initialization ---
   init(options) {
     this.mergeConfig(options);
-    this.initializeSession(); 
+    this.initializeSession();
+    this.loadMarkdownConverter();
     if (this.config.theme.clearChatOnReload) {
       sessionStorage.removeItem(`chatbot_messages_${this.sessionId}`);
     }
@@ -212,7 +213,7 @@ class ChatbotWidget {
       #chatbot-root .message .bubble p:last-child { margin-bottom: 0; }
       #chatbot-root .message .bubble strong, #chatbot-root .message .bubble b { font-size: inherit; font-weight: bold; }
       #chatbot-root .message .bubble ul { padding-left: 20px; margin: 8px 0; }
-      #chatbot-root .message .bubble li { padding: 0; margin-bottom: 4px; }
+      #chatbot-root .message .bubble li { padding: 0; margin-bottom: 4px; list-style-type: disc; }
       #chatbot-root .message.bot { align-self: flex-start; }
       #chatbot-root .message.bot .bubble { background: ${theme.botMessageBackgroundColor}; color: ${theme.botMessageTextColor}; }
       #chatbot-root .message.user { align-self: flex-end; flex-direction: row-reverse; }
