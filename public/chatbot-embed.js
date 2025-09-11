@@ -1,5 +1,5 @@
 /**
- * Custom Chatbot Embed Script V14 (Final with CSS Namespacing)
+ * Custom Chatbot Embed Script V14 (Final with All Fixes)
  * A comprehensive embeddable chatbot widget with full feature and theming support.
  */
 class ChatbotWidget {
@@ -25,7 +25,7 @@ class ChatbotWidget {
   // --- Core Initialization ---
   init(options) {
     this.mergeConfig(options);
-    this.initializeSession();
+    this.initializeSession(); 
     this.loadMarkdownConverter();
     if (this.config.theme.clearChatOnReload) {
       sessionStorage.removeItem(`chatbot_messages_${this.sessionId}`);
@@ -280,8 +280,10 @@ class ChatbotWidget {
 
       if (msg.thinking) {
         bubble.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+      } else if (theme.renderHtml && window.marked) {
+        bubble.innerHTML = window.marked.parse(msg.content || '');
       } else if (theme.renderHtml) {
-        bubble.innerHTML = msg.content || '';
+        bubble.innerHTML = msg.content;
       } else {
         bubble.textContent = msg.content;
       }
@@ -476,6 +478,22 @@ class ChatbotWidget {
   }
   
   // --- Utilities ---
+  loadMarkdownConverter() {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+    script.onload = () => {
+      const renderer = new window.marked.Renderer();
+      const originalLinkRenderer = renderer.link;
+      renderer.link = function(href, title, text) {
+          const link = originalLinkRenderer.call(this, href, title, text);
+          return link.replace(/^<a/, '<a target="_blank" rel="noopener noreferrer"');
+      };
+      window.marked.use({ renderer, gfm: true, breaks: true });
+      this.updateMessages(); // Re-render any existing messages
+    };
+    document.head.appendChild(script);
+  }
+  
   injectCustomCSS(css) {
     const style = document.createElement('style');
     style.textContent = css;
