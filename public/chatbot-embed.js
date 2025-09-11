@@ -25,7 +25,7 @@ class ChatbotWidget {
   // --- Core Initialization ---
   init(options) {
     this.mergeConfig(options);
-    this.initializeSession(); 
+    this.initializeSession();
     this.loadMarkdownConverter();
     if (this.config.theme.clearChatOnReload) {
       sessionStorage.removeItem(`chatbot_messages_${this.sessionId}`);
@@ -479,9 +479,10 @@ class ChatbotWidget {
     script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
     script.onload = () => {
       const renderer = new window.marked.Renderer();
+      // Correctly extend the link renderer without causing a recursive loop
       const originalLinkRenderer = renderer.link;
-      renderer.link = (href, title, text) => {
-          const link = originalLinkRenderer.call(renderer, href, title, text);
+      renderer.link = function(href, title, text) {
+          const link = originalLinkRenderer.call(this, href, title, text);
           return link.replace(/^<a/, '<a target="_blank" rel="noopener noreferrer"');
       };
       window.marked.use({ renderer, gfm: true, breaks: true });
