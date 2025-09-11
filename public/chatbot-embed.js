@@ -1,5 +1,5 @@
 /**
- * Custom Chatbot Embed Script V12 (Final with Markdown Fix)
+ * Custom Chatbot Embed Script V12 (Final with Style Resets)
  * A comprehensive embeddable chatbot widget with full feature and theming support.
  */
 class ChatbotWidget {
@@ -25,7 +25,7 @@ class ChatbotWidget {
   // --- Core Initialization ---
   init(options) {
     this.mergeConfig(options);
-    this.initializeSession();
+    this.initializeSession(); 
     this.loadMarkdownConverter();
     if (this.config.theme.clearChatOnReload) {
       sessionStorage.removeItem(`chatbot_messages_${this.sessionId}`);
@@ -210,6 +210,11 @@ class ChatbotWidget {
       .message .bubble { padding: 10px 14px; border-radius: ${theme.messageBorderRadius}px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; font-size: 14px; }
       .message .bubble p:first-child { margin-top: 0; }
       .message .bubble p:last-child { margin-bottom: 0; }
+      /* --- START: Style Resets for Host Page Conflicts --- */
+      .message .bubble strong, .message .bubble b { font-size: inherit; font-weight: bold; }
+      .message .bubble ul { padding-left: 20px; margin: 8px 0; }
+      .message .bubble li { padding: 0; margin-bottom: 4px; }
+      /* --- END: Style Resets --- */
       .message.bot { align-self: flex-start; }
       .message.bot .bubble { background: ${theme.botMessageBackgroundColor}; color: ${theme.botMessageTextColor}; }
       .message.user { align-self: flex-end; flex-direction: row-reverse; }
@@ -479,7 +484,6 @@ class ChatbotWidget {
     script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
     script.onload = () => {
       const renderer = new window.marked.Renderer();
-      // Correctly extend the link renderer without causing a recursive loop
       const originalLinkRenderer = renderer.link;
       renderer.link = function(href, title, text) {
           const link = originalLinkRenderer.call(this, href, title, text);
