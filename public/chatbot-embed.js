@@ -1,5 +1,5 @@
 /**
- * Custom Chatbot Embed Script V10 (Final with Markdown)
+ * Custom Chatbot Embed Script V12 (Final with Font Tweak)
  * A comprehensive embeddable chatbot widget with full feature and theming support.
  */
 class ChatbotWidget {
@@ -10,7 +10,7 @@ class ChatbotWidget {
     this.messages = [];
     this.container = null;
     this.inputValue = '';
-    this.sessionId = null; // Add sessionId property
+    this.sessionId = null;
     // Drag/Resize properties
     this.isResizing = false;
     this.isDragging = false;
@@ -25,7 +25,7 @@ class ChatbotWidget {
   // --- Core Initialization ---
   init(options) {
     this.mergeConfig(options);
-    this.initializeSession(); // Initialize the session
+    this.initializeSession();
     this.loadMarkdownConverter();
     if (this.config.theme.clearChatOnReload) {
       sessionStorage.removeItem(`chatbot_messages_${this.sessionId}`);
@@ -193,7 +193,7 @@ class ChatbotWidget {
     const theme = this.config.theme;
     const style = document.createElement('style');
     style.textContent = `
-      #chatbot-root { position: fixed; bottom: ${theme.bottomPosition}px; right: ${theme.rightPosition}px; z-index: 2147483647; font-size: ${theme.fontSize}px; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; }
+      #chatbot-root { position: fixed; bottom: ${theme.bottomPosition}px; right: ${theme.rightPosition}px; z-index: 2147483647; font-size: 16px; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; }
       #chatbot-bubble { width: ${theme.bubbleSize}px; height: ${theme.bubbleSize}px; background: ${theme.bubbleColor}; border-radius: ${this.getBorderRadiusValue(theme.borderRadiusStyle)}; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.2s; }
       #chatbot-window { display: none; width: ${theme.windowWidth}px; height: ${theme.windowHeight}px; background: ${theme.backgroundColorWindow}; border-radius: ${theme.windowBorderRadius}px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); flex-direction: column; overflow: hidden; position: absolute; bottom: ${theme.bubbleSize + 10}px; right: 0; }
       #chatbot-window.open { display: flex; }
@@ -207,7 +207,7 @@ class ChatbotWidget {
       .message { display: flex; gap: 8px; max-width: 85%; }
       .message .avatar { width: ${theme.avatarSize}px; height: ${theme.avatarSize}px; border-radius: ${theme.avatarBorderRadius}px; flex-shrink: 0; background-size: cover; background-position: center; }
       .message .avatar.letter { display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; }
-      .message .bubble { padding: 10px 14px; border-radius: ${theme.messageBorderRadius}px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; }
+      .message .bubble { padding: 10px 14px; border-radius: ${theme.messageBorderRadius}px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; font-size: 14px; }
       .message .bubble p:first-child { margin-top: 0; }
       .message .bubble p:last-child { margin-bottom: 0; }
       .message.bot { align-self: flex-start; }
@@ -279,7 +279,7 @@ class ChatbotWidget {
       } else if (theme.renderHtml && window.marked) {
         bubble.innerHTML = window.marked.parse(msg.content || '');
       } else if (theme.renderHtml) {
-        bubble.innerHTML = msg.content; // Fallback if marked fails
+        bubble.innerHTML = msg.content; // Fallback if marked fails to load
       } else {
         bubble.textContent = msg.content;
       }
@@ -479,7 +479,11 @@ class ChatbotWidget {
     script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
     script.onload = () => {
       const renderer = new window.marked.Renderer();
-      renderer.link = (href, title, text) => `<a target="_blank" rel="noopener noreferrer" href="${href}" title="${title || ''}">${text}</a>`;
+      const defaultLinkRenderer = renderer.link;
+      renderer.link = (href, title, text) => {
+          let link = defaultLinkRenderer.call(renderer, href, title, text);
+          return link.replace(/^<a/, '<a target="_blank" rel="noopener noreferrer"');
+      };
       window.marked.use({ renderer, gfm: true, breaks: true });
       this.updateMessages(); // Re-render messages now that 'marked' is available
     };
