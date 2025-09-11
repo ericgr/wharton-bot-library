@@ -1,5 +1,5 @@
 /**
- * Custom Chatbot Embed Script V12 (Final with Font Tweak)
+ * Custom Chatbot Embed Script V11 (with Link Debugging)
  * A comprehensive embeddable chatbot widget with full feature and theming support.
  */
 class ChatbotWidget {
@@ -25,7 +25,7 @@ class ChatbotWidget {
   // --- Core Initialization ---
   init(options) {
     this.mergeConfig(options);
-    this.initializeSession();
+    this.initializeSession(); 
     this.loadMarkdownConverter();
     if (this.config.theme.clearChatOnReload) {
       sessionStorage.removeItem(`chatbot_messages_${this.sessionId}`);
@@ -479,13 +479,15 @@ class ChatbotWidget {
     script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
     script.onload = () => {
       const renderer = new window.marked.Renderer();
-      const defaultLinkRenderer = renderer.link;
-      renderer.link = (href, title, text) => {
-          let link = defaultLinkRenderer.call(renderer, href, title, text);
+      // This is the new, robust link renderer function
+      renderer.link = function(href, title, text) {
+          // Get the default link HTML from the library
+          let link = this.parser.renderer.link.call(this, href, title, text);
+          // Modify it to add the target="_blank" attribute
           return link.replace(/^<a/, '<a target="_blank" rel="noopener noreferrer"');
       };
       window.marked.use({ renderer, gfm: true, breaks: true });
-      this.updateMessages(); // Re-render messages now that 'marked' is available
+      this.updateMessages(); // Re-render any existing messages
     };
     document.head.appendChild(script);
   }
