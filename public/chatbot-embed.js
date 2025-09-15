@@ -1,5 +1,5 @@
 /**
- * Custom Chatbot Embed Script V15 (Final with Local Storage)
+ * Custom Chatbot Embed Script V16 (Final with Storage Fix)
  * A comprehensive embeddable chatbot widget with full feature and theming support.
  */
 class ChatbotWidget {
@@ -26,9 +26,6 @@ class ChatbotWidget {
   init(options) {
     this.mergeConfig(options);
     this.initializeSession();
-    if (this.config.theme.clearChatOnReload) {
-      localStorage.removeItem(`chatbot_messages_${this.sessionId}`);
-    }
     this.loadMessages();
     this.createChatbot();
     if (this.config.theme.autoOpenBot) {
