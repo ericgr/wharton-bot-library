@@ -1,5 +1,5 @@
 /**
- * Custom Chatbot Embed Script V14 (Final with All Fixes)
+ * Custom Chatbot Embed Script V15 (Final with Local Storage)
  * A comprehensive embeddable chatbot widget with full feature and theming support.
  */
 class ChatbotWidget {
@@ -26,9 +26,8 @@ class ChatbotWidget {
   init(options) {
     this.mergeConfig(options);
     this.initializeSession(); 
-    this.loadMarkdownConverter();
     if (this.config.theme.clearChatOnReload) {
-      sessionStorage.removeItem(`chatbot_messages_${this.sessionId}`);
+      localStorage.removeItem(`chatbot_messages_${this.sessionId}`);
     }
     this.loadMessages();
     this.createChatbot();
@@ -280,10 +279,8 @@ class ChatbotWidget {
 
       if (msg.thinking) {
         bubble.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
-      } else if (theme.renderHtml && window.marked) {
-        bubble.innerHTML = window.marked.parse(msg.content || '');
       } else if (theme.renderHtml) {
-        bubble.innerHTML = msg.content;
+        bubble.innerHTML = msg.content || '';
       } else {
         bubble.textContent = msg.content;
       }
@@ -436,19 +433,19 @@ class ChatbotWidget {
   
   // --- Data and API ---
   initializeSession() {
-    this.sessionId = sessionStorage.getItem(`chatbot_session_${this.config.chatbotId}`);
+    this.sessionId = localStorage.getItem(`chatbot_session_${this.config.chatbotId}`);
     if (!this.sessionId) {
       this.sessionId = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-      sessionStorage.setItem(`chatbot_session_${this.config.chatbotId}`, this.sessionId);
+      localStorage.setItem(`chatbot_session_${this.config.chatbotId}`, this.sessionId);
     }
   }
 
   saveMessages() {
-    sessionStorage.setItem(`chatbot_messages_${this.sessionId}`, JSON.stringify(this.messages));
+    localStorage.setItem(`chatbot_messages_${this.sessionId}`, JSON.stringify(this.messages));
   }
 
   loadMessages() {
-    const saved = sessionStorage.getItem(`chatbot_messages_${this.sessionId}`);
+    const saved = localStorage.getItem(`chatbot_messages_${this.sessionId}`);
     if (saved) this.messages = JSON.parse(saved);
   }
 
@@ -478,22 +475,6 @@ class ChatbotWidget {
   }
   
   // --- Utilities ---
-  loadMarkdownConverter() {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
-    script.onload = () => {
-      const renderer = new window.marked.Renderer();
-      const originalLinkRenderer = renderer.link;
-      renderer.link = function(href, title, text) {
-          const link = originalLinkRenderer.call(this, href, title, text);
-          return link.replace(/^<a/, '<a target="_blank" rel="noopener noreferrer"');
-      };
-      window.marked.use({ renderer, gfm: true, breaks: true });
-      this.updateMessages(); // Re-render any existing messages
-    };
-    document.head.appendChild(script);
-  }
-  
   injectCustomCSS(css) {
     const style = document.createElement('style');
     style.textContent = css;
