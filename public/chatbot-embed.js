@@ -1,5 +1,5 @@
 /**
- * Custom Chatbot Embed Script V16 (Final with Storage Fix)
+ * Custom Chatbot Embed Script V16 (Final with State Persistence)
  * A comprehensive embeddable chatbot widget with full feature and theming support.
  */
 class ChatbotWidget {
@@ -25,10 +25,17 @@ class ChatbotWidget {
   // --- Core Initialization ---
   init(options) {
     this.mergeConfig(options);
-    this.initializeSession();
+    this.initializeSession(); 
     this.loadMessages();
     this.createChatbot();
-    if (this.config.theme.autoOpenBot) {
+
+    // Check saved state to see if window should be open
+    const wasOpen = localStorage.getItem(`chatbot_open_${this.sessionId}`) === 'true';
+    if (wasOpen) {
+      this.toggleChat(true);
+    }
+    
+    if (!wasOpen && this.config.theme.autoOpenBot) {
       setTimeout(() => this.toggleChat(true), this.config.theme.openDelay * 1000);
     }
   }
@@ -338,6 +345,13 @@ class ChatbotWidget {
     const header = document.getElementById('chatbot-header');
     resizeHandle.addEventListener('mousedown', this.onResizeStart.bind(this));
     header.addEventListener('mousedown', this.onDragStart.bind(this));
+    
+    // Add event listener for the back/forward cache
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) {
+            this.reinitStateAfterBfcache();
+        }
+    });
   }
   
   toggleChat(forceOpen = null) {
@@ -345,6 +359,8 @@ class ChatbotWidget {
     document.getElementById('chatbot-window').classList.toggle('open', this.isOpen);
     this.updateBubbleIcon();
     
+    localStorage.setItem(`chatbot_open_${this.sessionId}`, this.isOpen);
+
     const tooltip = document.getElementById('chatbot-tooltip');
     if (tooltip && this.isOpen) {
         tooltip.style.display = 'none';
@@ -372,6 +388,16 @@ class ChatbotWidget {
       const initialMessage = this.config.theme.welcomeMessage || 'Hello! How can I help you today?';
       this.messages = [{ type: 'bot', content: initialMessage }];
       this.updateMessages();
+  }
+  
+  reinitStateAfterBfcache() {
+      console.log('Page loaded from back-forward cache. Re-initializing chatbot state.');
+      this.loadMessages();
+      this.updateMessages();
+      const wasOpen = localStorage.getItem(`chatbot_open_${this.sessionId}`) === 'true';
+      if (this.isOpen !== wasOpen) {
+          this.toggleChat(wasOpen);
+      }
   }
 
   // --- Drag and Resize Handlers ---
@@ -443,7 +469,13 @@ class ChatbotWidget {
 
   loadMessages() {
     const saved = localStorage.getItem(`chatbot_messages_${this.sessionId}`);
-    if (saved) this.messages = JSON.parse(saved);
+    if (saved) {
+        try {
+            this.messages = JSON.parse(saved);
+        } catch (e) {
+            this.messages = [];
+        }
+    }
   }
 
   async sendToWebhook(message) {
