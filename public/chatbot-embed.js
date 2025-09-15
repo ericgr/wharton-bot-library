@@ -25,7 +25,7 @@ class ChatbotWidget {
   // --- Core Initialization ---
   init(options) {
     this.mergeConfig(options);
-    this.initializeSession(); 
+    this.initializeSession();
     if (this.config.theme.clearChatOnReload) {
       localStorage.removeItem(`chatbot_messages_${this.sessionId}`);
     }
