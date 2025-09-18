@@ -234,7 +234,7 @@ const ChatbotBuilder = () => {
                 />
               </div>
               <div className="flex gap-2">
-                <Button onClick={handleSave} disabled={isSaving || !chatbotName.trim()} className="gap-2">
+                <Button type="button" onClick={handleSave} disabled={isSaving || !chatbotName.trim()} className="gap-2">
                   <Save className="h-4 w-4" />
                   {isSaving ? "Saving..." : id ? "Update Chatbot" : "Create Chatbot"}
                 </Button>
