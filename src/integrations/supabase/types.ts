@@ -14,8 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      chat_transcripts: {
+        Row: {
+          chatbot_id: string | null
+          client_id: string | null
+          cookie_visitor_id: string | null
+          created_at: string | null
+          id: number
+          messages: Json | null
+          session_id: string
+        }
+        Insert: {
+          chatbot_id?: string | null
+          client_id?: string | null
+          cookie_visitor_id?: string | null
+          created_at?: string | null
+          id?: number
+          messages?: Json | null
+          session_id: string
+        }
+        Update: {
+          chatbot_id?: string | null
+          client_id?: string | null
+          cookie_visitor_id?: string | null
+          created_at?: string | null
+          id?: number
+          messages?: Json | null
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_transcripts_chatbot_id_fkey"
+            columns: ["chatbot_id"]
+            isOneToOne: false
+            referencedRelation: "chatbot_configs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_transcripts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chatbot_configs: {
         Row: {
+          client_id: string | null
           config: Json
           created_at: string
           id: string
@@ -25,6 +71,7 @@ export type Database = {
           webhook_url: string | null
         }
         Insert: {
+          client_id?: string | null
           config?: Json
           created_at?: string
           id?: string
@@ -34,6 +81,7 @@ export type Database = {
           webhook_url?: string | null
         }
         Update: {
+          client_id?: string | null
           config?: Json
           created_at?: string
           id?: string
@@ -41,6 +89,38 @@ export type Database = {
           updated_at?: string
           user_id?: string
           webhook_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chatbot_configs_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clients: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -73,7 +153,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_duplicate_client_name: {
+        Args: {
+          client_name: string
+          exclude_client_id?: string
+          user_id_param: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

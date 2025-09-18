@@ -7,6 +7,8 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import ChatbotList from "./pages/ChatbotList";
 import ChatbotBuilder from "./pages/ChatbotBuilder";
+import ClientList from "./pages/ClientList";
+import ClientChatbots from "./pages/ClientChatbots";
 
 const queryClient = new QueryClient();
 
@@ -17,7 +19,12 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<ChatbotList />} />
+          <Route path="/" element={<ClientList />} />
+          <Route path="/clients" element={<ClientList />} />
+          <Route path="/clients/:clientId/chatbots" element={<ClientChatbots />} />
+          <Route path="/clients/:clientId/builder" element={<ChatbotBuilder />} />
+          <Route path="/clients/:clientId/builder/:id" element={<ChatbotBuilder />} />
+          <Route path="/legacy" element={<ChatbotList />} />
           <Route path="/builder" element={<ChatbotBuilder />} />
           <Route path="/builder/:id" element={<ChatbotBuilder />} />
           <Route path="/auth" element={<Auth />} />

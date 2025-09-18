@@ -14,25 +14,55 @@ import AuthGuard from "@/components/AuthGuard";
 import UserProfileDropdown from "@/components/UserProfileDropdown";
 
 const ChatbotBuilder = () => {
-  const { id } = useParams();
+  const { id, clientId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { config, updateConfig, setFullConfig, resetConfig } = useChatbotConfig();
   const [chatbotName, setChatbotName] = useState("");
   const [chatbotId, setChatbotId] = useState<string | null>(null);
+  const [client, setClient] = useState<{ id: string; name: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    if (id && user) {
-      loadChatbot();
-    } else if (!id) {
-      // Reset for new chatbot
-      resetConfig();
-      setChatbotName("");
+    if (user) {
+      if (clientId) {
+        loadClient();
+      }
+      if (id) {
+        loadChatbot();
+      } else if (!id) {
+        // Reset for new chatbot
+        resetConfig();
+        setChatbotName("");
+      }
     }
-  }, [id, user]);
+  }, [id, clientId, user]);
+
+  const loadClient = async () => {
+    if (!clientId || !user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("clients")
+        .select("id, name")
+        .eq("id", clientId)
+        .eq("user_id", user.id)
+        .single();
+
+      if (error) throw error;
+      setClient(data);
+    } catch (error) {
+      console.error("Error loading client:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load client information",
+        variant: "destructive",
+      });
+      navigate("/clients");
+    }
+  };
 
   const loadChatbot = async () => {
     if (!id || !user) return;
@@ -62,7 +92,11 @@ const ChatbotBuilder = () => {
         description: "Failed to load chatbot configuration",
         variant: "destructive",
       });
-      navigate("/");
+      if (clientId) {
+        navigate(`/clients/${clientId}/chatbots`);
+      } else {
+        navigate("/legacy");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -85,6 +119,7 @@ const ChatbotBuilder = () => {
         config: config as any,
         webhook_url: config.webhookUrl || null,
         user_id: user.id,
+        client_id: clientId || null,
       };
       
       console.log("Saving config:", config);
@@ -122,7 +157,12 @@ const ChatbotBuilder = () => {
           description: "Chatbot created successfully",
         });
 
-        navigate("/");
+        // Navigate based on whether we have a client context
+        if (clientId) {
+          navigate(`/clients/${clientId}/chatbots`);
+        } else {
+          navigate("/legacy");
+        }
       }
     } catch (error) {
       console.error("Error saving chatbot:", error);
@@ -155,14 +195,25 @@ const ChatbotBuilder = () => {
         <div className="container mx-auto px-4 py-8">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-4">
-              <Button variant="ghost" onClick={() => navigate("/")} className="gap-2">
+              <Button 
+                variant="ghost" 
+                onClick={() => clientId ? navigate(`/clients/${clientId}/chatbots`) : navigate("/legacy")} 
+                className="gap-2"
+              >
                 <ArrowLeft className="h-4 w-4" />
-                Back to My Chatbots
+                {clientId ? `Back to ${client?.name || "Client"} Chatbots` : "Back to My Chatbots"}
               </Button>
               <div className="h-6 w-px bg-border" />
-              <h1 className="text-2xl font-bold">
-                {id ? "Edit Chatbot" : "Create New Chatbot"}
-              </h1>
+              <div>
+                <h1 className="text-2xl font-bold">
+                  {id ? "Edit Chatbot" : "Create New Chatbot"}
+                </h1>
+                {client && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    for {client.name}
+                  </p>
+                )}
+              </div>
             </div>
             <UserProfileDropdown />
           </div>
