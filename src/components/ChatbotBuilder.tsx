@@ -82,7 +82,7 @@ Chatbot.init({
                 Create and customize your embeddable chatbot widget
               </p>
             </div>
-            <UserProfile />
+            
           </div>
 
           {/* Mode Selector */}

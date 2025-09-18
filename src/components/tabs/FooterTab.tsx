@@ -1,8 +1,7 @@
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
 import { ColorPicker } from "@/components/ui/color-picker";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { ChatbotConfig } from "@/hooks/useChatbotConfig";
 
 interface FooterTabProps {
@@ -24,12 +23,12 @@ export const FooterTab = ({ config, updateConfig }: FooterTabProps) => {
       {config.showFooter && (
         <>
           <div>
-            <Label className="text-sm font-medium mb-2 block">Footer Text (accepts basic HTML)</Label>
-            <Textarea
+            <Label className="text-sm font-medium mb-2 block">Footer Text</Label>
+            <RichTextEditor
               value={config.footerText}
-              onChange={(e) => updateConfig({ footerText: e.target.value })}
+              onChange={(value) => updateConfig({ footerText: value })}
               placeholder="Powered by WEMBA"
-              className="min-h-[60px]"
+              className="min-h-[100px]"
             />
           </div>
 

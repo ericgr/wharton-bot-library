@@ -213,6 +213,7 @@ const ClientChatbots = () => {
                 <Card
                   key={chatbot.id}
                   className="hover:shadow-lg transition-shadow cursor-pointer group"
+                  style={{ background: 'var(--gradient-chatbot)' }}
                 >
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle
