@@ -174,8 +174,9 @@ export const useChatbotConfig = () => {
     if (updates.tooltipMessage) {
       sanitizedUpdates.tooltipMessage = updates.tooltipMessage.slice(0, 200);
     }
-    if (updates.footerText) {
-      sanitizedUpdates.footerText = updates.footerText.slice(0, 100);
+    // Do NOT slice footerText HTML to avoid breaking links/markup
+    if (typeof updates.footerText === 'string') {
+      sanitizedUpdates.footerText = updates.footerText;
     }
     if (updates.webhookUrl) {
       // Basic URL validation
