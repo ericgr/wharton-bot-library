@@ -113,6 +113,24 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
     overflow: 'hidden', // This ensures border radius is visible
   });
 
+  const addTargetToLinks = (html: string) => {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html || "", "text/html");
+      const anchors = doc.querySelectorAll("a[href]");
+      anchors.forEach((a) => {
+        a.setAttribute("target", "_blank");
+        a.setAttribute("rel", "noopener noreferrer");
+        const href = a.getAttribute("href") || "";
+        if (!/^(https?:|mailto:|tel:)/i.test(href)) {
+          a.setAttribute("href", "#");
+        }
+      });
+      return doc.body.innerHTML;
+    } catch {
+      return html || "";
+    }
+  };
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsResizing(true);
@@ -141,8 +159,6 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
   };
-
-  
   return (
     <div className="fixed inset-0 pointer-events-none z-[9999]">
 
@@ -374,7 +390,7 @@ export const ChatbotPreview = ({ config }: ChatbotPreviewProps) => {
                 color: config.footerTextColor,
               }}
             >
-              <div dangerouslySetInnerHTML={{ __html: config.footerText }} />
+              <div dangerouslySetInnerHTML={{ __html: addTargetToLinks(config.footerText) }} />
             </div>
           )}
         </div>

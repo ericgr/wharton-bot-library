@@ -33,24 +33,11 @@ export const RichTextEditor = forwardRef<ReactQuill, RichTextEditorProps>(
     useImperativeHandle(ref, () => quillRef.current!);
 
     const handleChange = (content: string) => {
-      // Process the content to make all links open in new tabs
-      const processedContent = content.replace(
-        /<a\s+href=/g, 
-        '<a target="_blank" rel="noopener noreferrer" href='
-      );
-      onChange(processedContent);
-    };
-
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-      // Prevent form submission on Enter key in rich text editor
-      if (e.key === 'Enter' && e.ctrlKey) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
+      onChange(content);
     };
 
     return (
-      <div className={cn("rich-text-editor", className)} onKeyDown={handleKeyDown}>
+      <div className={cn("rich-text-editor", className)}>
         <ReactQuill
           ref={quillRef}
           theme="snow"
