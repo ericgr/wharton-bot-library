@@ -250,7 +250,8 @@ class ChatbotWidget {
       bubbleElement.innerHTML = this.getIconSVG('close');
     } else if (theme.customIconUrl) {
       const iconSize = theme.customIconSize || 60;
-      bubbleElement.innerHTML = `<img src="${theme.customIconUrl}" alt="Chat" style="width:${iconSize}%; height:${iconSize}%;" />`;
+      // This is the updated line to prevent distortion
+      bubbleElement.innerHTML = `<img src="${theme.customIconUrl}" alt="Chat" style="max-width: ${iconSize}%; max-height: ${iconSize}%;" />`;
     } else {
       bubbleElement.innerHTML = this.getIconSVG('message-circle');
     }
@@ -346,7 +347,6 @@ class ChatbotWidget {
     resizeHandle.addEventListener('mousedown', this.onResizeStart.bind(this));
     header.addEventListener('mousedown', this.onDragStart.bind(this));
     
-    // Add event listener for the back/forward cache
     window.addEventListener('pageshow', (event) => {
         if (event.persisted) {
             this.reinitStateAfterBfcache();
@@ -470,11 +470,8 @@ class ChatbotWidget {
   loadMessages() {
     const saved = localStorage.getItem(`chatbot_messages_${this.sessionId}`);
     if (saved) {
-        try {
-            this.messages = JSON.parse(saved);
-        } catch (e) {
-            this.messages = [];
-        }
+        try { this.messages = JSON.parse(saved); }
+        catch (e) { this.messages = []; }
     }
   }
 
