@@ -1,5 +1,5 @@
 /**
- * Custom Chatbot Embed Script V16 (Final with State Persistence)
+ * Custom Chatbot Embed Script V17 (Final with Pardot Integration)
  * A comprehensive embeddable chatbot widget with full feature and theming support.
  */
 class ChatbotWidget {
@@ -26,10 +26,14 @@ class ChatbotWidget {
   init(options) {
     this.mergeConfig(options);
     this.initializeSession(); 
+    
+    // Add the visitor ID to the metadata if found
+    this.config.metadata = this.config.metadata || {};
+    this.config.metadata.cookie_visitor_id = this.getVisitorIdCookie();
+    
     this.loadMessages();
     this.createChatbot();
 
-    // Check saved state to see if window should be open
     const wasOpen = localStorage.getItem(`chatbot_open_${this.sessionId}`) === 'true';
     if (wasOpen) {
       this.toggleChat(true);
@@ -250,7 +254,6 @@ class ChatbotWidget {
       bubbleElement.innerHTML = this.getIconSVG('close');
     } else if (theme.customIconUrl) {
       const iconSize = theme.customIconSize || 60;
-      // This is the updated line to prevent distortion
       bubbleElement.innerHTML = `<img src="${theme.customIconUrl}" alt="Chat" style="max-width: ${iconSize}%; max-height: ${iconSize}%;" />`;
     } else {
       bubbleElement.innerHTML = this.getIconSVG('message-circle');
@@ -501,6 +504,18 @@ class ChatbotWidget {
   }
   
   // --- Utilities ---
+  getVisitorIdCookie() {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+        let cookie = cookies[i].trim();
+        // Pardot cookies typically start with 'visitor_id'
+        if (cookie.startsWith('visitor_id')) {
+            return cookie.split('=')[1];
+        }
+    }
+    return null;
+  }
+
   injectCustomCSS(css) {
     const style = document.createElement('style');
     style.textContent = css;
