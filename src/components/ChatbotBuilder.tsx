@@ -41,7 +41,7 @@ export const ChatbotBuilder = ({ config: propConfig, updateConfig: propUpdateCon
 <script>
 Chatbot.init({
   chatbotId: "${chatbotIdToUse}",
-  routingUrl: "https://jppjdfmeblnmfdowpumn.supabase.co/functions/v1/chat",
+  routingUrl: "https://jppjdfmeblnmfdowpumn.supabase.co/functions/v1/chat",${config.visitorCookieName ? `\n  visitorCookieName: "${config.visitorCookieName}",` : ''}
   metadata: {},
   theme: ${JSON.stringify(config, null, 2)}
 });
@@ -52,7 +52,7 @@ Chatbot.init({
 <script>
 Chatbot.init({
   chatbotId: "${chatbotIdToUse}",
-  routingUrl: "https://jppjdfmeblnmfdowpumn.supabase.co/functions/v1/chat",
+  routingUrl: "https://jppjdfmeblnmfdowpumn.supabase.co/functions/v1/chat",${config.visitorCookieName ? `\n  visitorCookieName: "${config.visitorCookieName}",` : ''}
   metadata: {},
   theme: ${JSON.stringify(config, null, 2)}
 });

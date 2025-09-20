@@ -75,6 +75,7 @@ export interface ChatbotConfig {
   // Advanced settings
   customCSS: string;
   webhookUrl: string;
+  visitorCookieName: string;
   chatbotId?: string;
 }
 
@@ -152,6 +153,7 @@ const defaultConfig: ChatbotConfig = {
   // Advanced defaults
   customCSS: "",
   webhookUrl: "",
+  visitorCookieName: "",
   chatbotId: undefined
 };
 

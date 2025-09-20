@@ -26,6 +26,20 @@ export const AdvancedTab = ({ config, updateConfig }: AdvancedTabProps) => {
       </div>
 
       <div>
+        <Label className="text-sm font-medium mb-2 block">Visitor Cookie Name (Optional)</Label>
+        <Input
+          type="text"
+          value={config.visitorCookieName}
+          onChange={(e) => updateConfig({ visitorCookieName: e.target.value })}
+          placeholder="e.g., hubspotutk, visitor_id123456, _mkto_trk"
+          className="font-mono text-sm"
+        />
+        <p className="text-xs text-muted-foreground mt-1">
+          Enter a cookie name for a visitorID to match a visitor and their chat
+        </p>
+      </div>
+
+      <div>
         <Label className="text-sm font-medium mb-2 block">Custom CSS</Label>
         <Textarea
           value={config.customCSS}
