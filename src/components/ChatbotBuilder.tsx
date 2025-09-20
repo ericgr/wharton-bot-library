@@ -284,7 +284,7 @@ Chatbot.init({
 <script>
 Chatbot.init({
   chatbotId: "${config.chatbotId || chatbotId || 'your-unique-chatbot-id'}",
-  routingUrl: "https://jppjdfmeblnmfdowpumn.supabase.co/functions/v1/chat",
+  routingUrl: "https://jppjdfmeblnmfdowpumn.supabase.co/functions/v1/chat",${config.visitorCookieName ? `\n  visitorCookieName: "${config.visitorCookieName}",` : ''}
   metadata: {
     firstName: "",
     lastName: "",
@@ -298,7 +298,7 @@ Chatbot.init({
 <script>
 Chatbot.init({
   chatbotId: "${config.chatbotId || chatbotId || 'your-unique-chatbot-id'}",
-  routingUrl: "https://jppjdfmeblnmfdowpumn.supabase.co/functions/v1/chat",
+  routingUrl: "https://jppjdfmeblnmfdowpumn.supabase.co/functions/v1/chat",${config.visitorCookieName ? `\n  visitorCookieName: "${config.visitorCookieName}",` : ''}
   metadata: {
     firstName: "",
     lastName: "",
