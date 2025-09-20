@@ -1,5 +1,5 @@
 /**
- * Custom Chatbot Embed Script V18 (Final with Vendor-Agnostic Integration)
+ * Custom Chatbot Embed Script V20 (Final with Vendor-Agnostic Integration)
  * A comprehensive embeddable chatbot widget with full feature and theming support.
  */
 class ChatbotWidget {
@@ -25,7 +25,7 @@ class ChatbotWidget {
   // --- Core Initialization ---
   init(options) {
     this.mergeConfig(options);
-    this.initializeSession(); 
+    this.initializeSession();  
     
     // Add the visitor ID to the metadata if a cookie name is provided
     if (this.config.visitorCookieName) {
@@ -509,9 +509,17 @@ class ChatbotWidget {
   // --- Utilities ---
   getCookieByName(name) {
     if (!name) return null;
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
+    const cookies = document.cookie.split(';');
+    for (const cookie of cookies) {
+        const trimmedCookie = cookie.trim();
+        const separatorIndex = trimmedCookie.indexOf('=');
+        if (separatorIndex === -1) continue;
+
+        const cookieName = trimmedCookie.substring(0, separatorIndex);
+        if (cookieName.startsWith(name)) {
+            return trimmedCookie.substring(separatorIndex + 1);
+        }
+    }
     return null;
   }
 
