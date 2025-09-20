@@ -42,7 +42,12 @@ export const ChatbotBuilder = ({ config: propConfig, updateConfig: propUpdateCon
 Chatbot.init({
   chatbotId: "${chatbotIdToUse}",
   routingUrl: "https://jppjdfmeblnmfdowpumn.supabase.co/functions/v1/chat",${config.visitorCookieName ? `\n  visitorCookieName: "${config.visitorCookieName}",` : ''}
-  metadata: {},
+  metadata: {
+    firstName: "",
+    lastName: "",
+    emailAddress: "",
+    customerID: ""
+  },
   theme: ${JSON.stringify(config, null, 2)}
 });
 </script>`;
@@ -53,7 +58,12 @@ Chatbot.init({
 Chatbot.init({
   chatbotId: "${chatbotIdToUse}",
   routingUrl: "https://jppjdfmeblnmfdowpumn.supabase.co/functions/v1/chat",${config.visitorCookieName ? `\n  visitorCookieName: "${config.visitorCookieName}",` : ''}
-  metadata: {},
+  metadata: {
+    firstName: "",
+    lastName: "",
+    emailAddress: "",
+    customerID: ""
+  },
   theme: ${JSON.stringify(config, null, 2)}
 });
 </script>`;
@@ -275,7 +285,12 @@ Chatbot.init({
 Chatbot.init({
   chatbotId: "${config.chatbotId || chatbotId || 'your-unique-chatbot-id'}",
   routingUrl: "https://jppjdfmeblnmfdowpumn.supabase.co/functions/v1/chat",
-  metadata: {},
+  metadata: {
+    firstName: "",
+    lastName: "",
+    emailAddress: "",
+    customerID: ""
+  },
   theme: ${JSON.stringify(config, null, 2)}
 });
 </script>` :
@@ -284,7 +299,12 @@ Chatbot.init({
 Chatbot.init({
   chatbotId: "${config.chatbotId || chatbotId || 'your-unique-chatbot-id'}",
   routingUrl: "https://jppjdfmeblnmfdowpumn.supabase.co/functions/v1/chat",
-  metadata: {},
+  metadata: {
+    firstName: "",
+    lastName: "",
+    emailAddress: "",
+    customerID: ""
+  },
   theme: ${JSON.stringify(config, null, 2)}
 });
 </script>`}
