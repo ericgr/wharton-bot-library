@@ -1,5 +1,5 @@
 /**
- * Custom Chatbot Embed Script V17 (Final with Pardot Integration)
+ * Custom Chatbot Embed Script V18 (Final with Vendor-Agnostic Integration)
  * A comprehensive embeddable chatbot widget with full feature and theming support.
  */
 class ChatbotWidget {
@@ -27,9 +27,11 @@ class ChatbotWidget {
     this.mergeConfig(options);
     this.initializeSession(); 
     
-    // Add the visitor ID to the metadata if found
-    this.config.metadata = this.config.metadata || {};
-    this.config.metadata.cookie_visitor_id = this.getVisitorIdCookie();
+    // Add the visitor ID to the metadata if a cookie name is provided
+    if (this.config.visitorCookieName) {
+        this.config.metadata = this.config.metadata || {};
+        this.config.metadata.cookie_visitor_id = this.getCookieByName(this.config.visitorCookieName);
+    }
     
     this.loadMessages();
     this.createChatbot();
@@ -101,6 +103,7 @@ class ChatbotWidget {
 
     const tempConfig = { ...this.config, ...options };
     tempConfig.theme = { ...defaultTheme, ...options.theme };
+    tempConfig.metadata = { ...this.config.metadata, ...options.metadata }; // Safely merge metadata
     this.config = tempConfig;
 
     // --- Compatibility Fixes ---
@@ -504,15 +507,11 @@ class ChatbotWidget {
   }
   
   // --- Utilities ---
-  getVisitorIdCookie() {
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-        let cookie = cookies[i].trim();
-        // Pardot cookies typically start with 'visitor_id'
-        if (cookie.startsWith('visitor_id')) {
-            return cookie.split('=')[1];
-        }
-    }
+  getCookieByName(name) {
+    if (!name) return null;
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
     return null;
   }
 
