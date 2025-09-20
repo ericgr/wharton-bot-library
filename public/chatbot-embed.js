@@ -1,5 +1,5 @@
 /**
- * Custom Chatbot Embed Script V18 (Final with Vendor-Agnostic Integration)
+ * Custom Chatbot Embed Script V14 (Final with All Fixes)
  * A comprehensive embeddable chatbot widget with full feature and theming support.
  */
 class ChatbotWidget {
@@ -26,13 +26,10 @@ class ChatbotWidget {
   init(options) {
     this.mergeConfig(options);
     this.initializeSession(); 
-    
-    // Add the visitor ID to the metadata if a cookie name is provided
-    if (this.config.visitorCookieName) {
-        this.config.metadata = this.config.metadata || {};
-        this.config.metadata.cookie_visitor_id = this.getCookieByName(this.config.visitorCookieName);
+    this.loadMarkdownConverter();
+    if (this.config.theme.clearChatOnReload) {
+      localStorage.removeItem(`chatbot_messages_${this.sessionId}`);
     }
-    
     this.loadMessages();
     this.createChatbot();
 
@@ -103,7 +100,6 @@ class ChatbotWidget {
 
     const tempConfig = { ...this.config, ...options };
     tempConfig.theme = { ...defaultTheme, ...options.theme };
-    tempConfig.metadata = { ...this.config.metadata, ...options.metadata }; // Safely merge metadata
     this.config = tempConfig;
 
     // --- Compatibility Fixes ---
@@ -290,8 +286,10 @@ class ChatbotWidget {
 
       if (msg.thinking) {
         bubble.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+      } else if (theme.renderHtml && window.marked) {
+        bubble.innerHTML = window.marked.parse(msg.content || '');
       } else if (theme.renderHtml) {
-        bubble.innerHTML = msg.content || '';
+        bubble.innerHTML = msg.content;
       } else {
         bubble.textContent = msg.content;
       }
@@ -507,6 +505,22 @@ class ChatbotWidget {
   }
   
   // --- Utilities ---
+  loadMarkdownConverter() {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+    script.onload = () => {
+      const renderer = new window.marked.Renderer();
+      const originalLinkRenderer = renderer.link;
+      renderer.link = function(href, title, text) {
+          const link = originalLinkRenderer.call(this, href, title, text);
+          return link.replace(/^<a/, '<a target="_blank" rel="noopener noreferrer"');
+      };
+      window.marked.use({ renderer, gfm: true, breaks: true });
+      this.updateMessages(); // Re-render any existing messages
+    };
+    document.head.appendChild(script);
+  }
+
   getCookieByName(name) {
     if (!name) return null;
     const value = `; ${document.cookie}`;
@@ -515,11 +529,16 @@ class ChatbotWidget {
     return null;
   }
 
+  getBorderRadiusValue(style) {
+      const map = { rounded: '16px', circle: '50%', none: '0px' };
+      return map[style] || '50%';
+  }
+
   getIconSVG(name) {
     const theme = this.config.theme;
     const iconColor = (name === 'send' || name === 'close-window' || name === 'rotate-ccw' || name === 'bot') ? theme.titleTextColor : 'white';
     const icons = {
-      'bot': `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" 24" fill="none" stroke="${iconColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>`,
+      'bot': `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${iconColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>`,
       'message-circle': `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/></svg>`,
       'close': `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`,
       'send': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>`,
