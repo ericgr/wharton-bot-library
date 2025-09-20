@@ -1,5 +1,5 @@
 /**
- * Custom Chatbot Embed Script V14 (Final with All Fixes)
+ * Custom Chatbot Embed Script V18 (Final with Vendor-Agnostic Integration)
  * A comprehensive embeddable chatbot widget with full feature and theming support.
  */
 class ChatbotWidget {
@@ -26,10 +26,13 @@ class ChatbotWidget {
   init(options) {
     this.mergeConfig(options);
     this.initializeSession(); 
-    this.loadMarkdownConverter();
-    if (this.config.theme.clearChatOnReload) {
-      localStorage.removeItem(`chatbot_messages_${this.sessionId}`);
+    
+    // Add the visitor ID to the metadata if a cookie name is provided
+    if (this.config.visitorCookieName) {
+        this.config.metadata = this.config.metadata || {};
+        this.config.metadata.cookie_visitor_id = this.getCookieByName(this.config.visitorCookieName);
     }
+    
     this.loadMessages();
     this.createChatbot();
 
@@ -100,6 +103,7 @@ class ChatbotWidget {
 
     const tempConfig = { ...this.config, ...options };
     tempConfig.theme = { ...defaultTheme, ...options.theme };
+    tempConfig.metadata = { ...this.config.metadata, ...options.metadata }; // Safely merge metadata
     this.config = tempConfig;
 
     // --- Compatibility Fixes ---
@@ -286,10 +290,8 @@ class ChatbotWidget {
 
       if (msg.thinking) {
         bubble.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
-      } else if (theme.renderHtml && window.marked) {
-        bubble.innerHTML = window.marked.parse(msg.content || '');
       } else if (theme.renderHtml) {
-        bubble.innerHTML = msg.content;
+        bubble.innerHTML = msg.content || '';
       } else {
         bubble.textContent = msg.content;
       }
@@ -505,28 +507,18 @@ class ChatbotWidget {
   }
   
   // --- Utilities ---
-  loadMarkdownConverter() {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
-    script.onload = () => {
-      const renderer = new window.marked.Renderer();
-      const originalLinkRenderer = renderer.link;
-      renderer.link = function(href, title, text) {
-          const link = originalLinkRenderer.call(this, href, title, text);
-          return link.replace(/^<a/, '<a target="_blank" rel="noopener noreferrer"');
-      };
-      window.marked.use({ renderer, gfm: true, breaks: true });
-      this.updateMessages(); // Re-render any existing messages
-    };
-    document.head.appendChild(script);
-  }
-
   getCookieByName(name) {
     if (!name) return null;
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
     return null;
+  }
+
+  injectCustomCSS(css) {
+    const style = document.createElement('style');
+    style.textContent = css;
+    document.head.appendChild(style);
   }
 
   getBorderRadiusValue(style) {
