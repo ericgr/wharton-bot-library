@@ -1,5 +1,5 @@
 /**
- * Custom Chatbot Embed Script V20 (Final with Vendor-Agnostic Integration)
+ * Custom Chatbot Embed Script V18 (Final with Vendor-Agnostic Integration)
  * A comprehensive embeddable chatbot widget with full feature and theming support.
  */
 class ChatbotWidget {
@@ -233,13 +233,14 @@ class ChatbotWidget {
       #chatbot-root .starter-prompt:hover { background: #f3f4f6; }
       #chatbot-root #input-area-wrapper { flex-shrink: 0; background: ${theme.textInputBackgroundColor}; border-top: 1px solid #e5e7eb; }
       #chatbot-root #input-area { display: flex; align-items: flex-end; padding: 10px; }
-      #chatbot-root #chatbot-input { flex-grow: 1; border: 1px solid #ccc; border-radius: ${theme.textInputBorderRadius}px; padding: 8px; outline: none; resize: none; font: 14px ui-sans-serif, system-ui, sans-serif; color: ${theme.textInputTextColor}; background: transparent; max-height: 100px; line-height: 1.4; }
+      #chatbot-root #chatbot-input { flex-grow: 1; border: 1px solid #ccc; border-radius: ${theme.textInputBorderRadius}px; padding: 8px; outline: none; resize: none; font: 14px ui-sans-serif, system-ui, sans-serif; color: ${theme.textInputTextColor}; background: transparent; max-height: 100px; line-height: 1.4; min-height: initial; }
       #chatbot-root #chatbot-send { background: ${theme.sendButtonColor}; color: white; border: none; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; margin-left: 8px; }
       #chatbot-root #character-counter { font-size: 12px; color: #65758b; padding: 0 12px 8px; text-align: right; }
       #chatbot-root #character-counter.error { color: red; }
       #chatbot-root #chatbot-tooltip { display: none; position: absolute; right: ${theme.bubbleSize + 10}px; bottom: 50%; transform: translateY(50%); background: ${theme.tooltipBackgroundColor}; color: ${theme.tooltipTextColor}; padding: 8px 12px; border-radius: 6px; font-size: 15px; white-space: nowrap; }
       #chatbot-root #chatbot-bubble:hover + #chatbot-tooltip { display: block; }
       #chatbot-root #chatbot-footer { padding: 8px; text-align: center; font-size: 12px; color: ${theme.footerTextColor}; background: ${theme.footerBackgroundColor}; border-top: 1px solid #e5e7eb; }
+      #chatbot-root #chatbot-footer p { margin: 0; line-height: 1.4; }
       #chatbot-root .typing-indicator { display: flex; align-items: center; justify-content: center; padding: 10px; }
       #chatbot-root .typing-indicator span { height: 8px; width: 8px; background: #9ca3af; border-radius: 50%; margin: 0 2px; animation: typing-blink 1.4s infinite both; }
       #chatbot-root .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
