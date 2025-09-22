@@ -90,7 +90,7 @@ Chatbot.init({
                 Chatbot Configuration Tool
               </h1>
               <p className="text-muted-foreground">
-                Create and customize your embeddable chatbot widget
+                Create and customize your embeddable chatbot widget. Perform all configurations changes in "pop up" mode.
               </p>
             </div>
             
