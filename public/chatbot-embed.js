@@ -1,5 +1,5 @@
 /**
- * Custom Chatbot Embed Script V18 (Final with Vendor-Agnostic Integration)
+ * Custom Chatbot Embed Script V19 (Dual-Mode: Bubble & In-Page)
  * A comprehensive embeddable chatbot widget with full feature and theming support.
  */
 class ChatbotWidget {
@@ -11,6 +11,9 @@ class ChatbotWidget {
     this.container = null;
     this.inputValue = '';
     this.sessionId = null;
+    // NEW: Mode properties
+    this.mode = 'bubble'; // Default mode
+    this.rootSelector = '#chatbot-root'; // Default CSS selector for the root element
     // Drag/Resize properties
     this.isResizing = false;
     this.isDragging = false;
@@ -25,31 +28,49 @@ class ChatbotWidget {
   // --- Core Initialization ---
   init(options) {
     this.mergeConfig(options);
-    this.initializeSession();  
-    
+    this.initializeSession();
+
+    // NEW: Determine mode and set the root CSS selector
+    this.mode = this.config.mode || 'bubble';
+    this.rootSelector = this.mode === 'inpage' ? 'kmtbot-inpage' : '#chatbot-root';
+
+    // NEW: Conditional rendering based on mode
+    if (this.mode === 'inpage') {
+      this.createInPageChat();
+    } else {
+      this.createBubbleChat();
+    }
+
     // Add the visitor ID to the metadata if a cookie name is provided
     if (this.config.visitorCookieName) {
-        this.config.metadata = this.config.metadata || {};
-        this.config.metadata.cookie_visitor_id = this.getCookieByName(this.config.visitorCookieName);
+      this.config.metadata = this.config.metadata || {};
+      this.config.metadata.cookie_visitor_id = this.getCookieByName(this.config.visitorCookieName);
     }
-    
-    this.loadMessages();
-    this.createChatbot();
 
-    const wasOpen = localStorage.getItem(`chatbot_open_${this.sessionId}`) === 'true';
-    if (wasOpen) {
-      this.toggleChat(true);
+    // Load messages and render them
+    this.loadMessages();
+    if (this.messages.length === 0) {
+      const initialMessage = this.config.theme.welcomeMessage || 'Hello! How can I help you today?';
+      this.messages.push({ type: 'bot', content: initialMessage });
     }
+    this.updateMessages();
+    this.updateCharacterCounter();
     
-    if (!wasOpen && this.config.theme.autoOpenBot) {
-      setTimeout(() => this.toggleChat(true), this.config.theme.openDelay * 1000);
+    // NEW: State restoration logic specific to bubble mode
+    if (this.mode === 'bubble') {
+        const wasOpen = localStorage.getItem(`chatbot_open_${this.sessionId}`) === 'true';
+        if (wasOpen) {
+          this.toggleChat(true);
+        }
+        if (!wasOpen && this.config.theme.autoOpenBot) {
+          setTimeout(() => this.toggleChat(true), this.config.theme.openDelay * 1000);
+        }
     }
   }
 
   mergeConfig(options) {
     const defaultTheme = {
       fontSize: 16,
-      // Bubble
       bubbleSize: 50,
       bottomPosition: 20,
       rightPosition: 20,
@@ -57,10 +78,8 @@ class ChatbotWidget {
       customIconUrl: null,
       customIconSize: 60,
       borderRadiusStyle: 'rounded',
-      // Tooltip
       showTooltip: true,
       tooltipMessage: 'Hi! How can I help?',
-      // Window
       titleText: 'WEMBA Digital Assistant',
       welcomeMessage: 'Hello! How can I help you?',
       windowWidth: 400,
@@ -69,21 +88,18 @@ class ChatbotWidget {
       titleTextColor: '#ffffff',
       backgroundColorWindow: '#ffffff',
       windowBorderRadius: 11,
-      // Avatars
       showBotAvatar: true,
       showUserAvatar: true,
       botAvatarUrl: null,
       userAvatarUrl: null,
       avatarSize: 24,
       avatarBorderRadius: 6,
-      // Messages
       botMessageBackgroundColor: '#f5f5f5',
       botMessageTextColor: '#333333',
       userMessageBackgroundColor: '#e3f2fd',
       userMessageTextColor: '#1976d2',
       messageBorderRadius: 6,
       renderHtml: true,
-      // Input
       placeholderText: 'How can I assist you?',
       sendButtonColor: '#054785',
       textInputBackgroundColor: '#ffffff',
@@ -92,10 +108,8 @@ class ChatbotWidget {
       maxCharacters: 75,
       maxCharactersWarning: 'Character limit exceeded.',
       autoFocusInput: true,
-      // Footer
       showFooter: false,
       footerText: 'Powered by Wharton',
-      // Advanced
       customCSS: '',
       webhookUrl: null,
       customErrorMessage: 'Sorry, I couldn\'t connect. Please try again.',
@@ -103,17 +117,18 @@ class ChatbotWidget {
 
     const tempConfig = { ...this.config, ...options };
     tempConfig.theme = { ...defaultTheme, ...options.theme };
-    tempConfig.metadata = { ...this.config.metadata, ...options.metadata }; // Safely merge metadata
+    tempConfig.metadata = { ...this.config.metadata, ...options.metadata };
     this.config = tempConfig;
 
-    // --- Compatibility Fixes ---
     if (this.config.theme.titleText) this.config.theme.windowTitle = this.config.theme.titleText;
     if (this.config.theme.titleTextColor) this.config.theme.windowTextColor = this.config.theme.titleTextColor;
     if (this.config.theme.backgroundColor) this.config.theme.bubbleColor = this.config.theme.backgroundColor;
   }
 
   // --- UI Creation ---
-  createChatbot() {
+
+  // NEW: Function to create the floating bubble chat
+  createBubbleChat() {
     this.container = document.createElement('div');
     this.container.id = 'chatbot-root';
     document.body.appendChild(this.container);
@@ -123,13 +138,23 @@ class ChatbotWidget {
     this.createTooltip();
     this.applyStyles();
     this.addEventListeners();
-    
-    if (this.messages.length === 0) {
-        const initialMessage = this.config.theme.welcomeMessage || 'Hello! How can I help you today?';
-        this.messages.push({ type: 'bot', content: initialMessage });
+  }
+  
+  // NEW: Function to create the in-page embedded chat
+  createInPageChat() {
+    this.container = document.querySelector('kmtbot-inpage');
+    if (!this.container) {
+      console.error('Chatbot Error: In-page mode requires a <kmtbot-inpage> element on the page.');
+      return;
     }
-    this.updateMessages();
-    this.updateCharacterCounter();
+
+    this.createChatWindow();
+    this.applyStyles();
+    this.addEventListeners();
+
+    // Make the window visible by default for in-page mode
+    const windowEl = document.getElementById('chatbot-window');
+    windowEl.style.display = 'flex';
   }
 
   createBubble() {
@@ -172,18 +197,24 @@ class ChatbotWidget {
     let iconHtml = theme.customIconUrl 
         ? `<img src="${theme.customIconUrl}" alt="Chatbot Icon" id="chatbot-header-icon-img" />`
         : this.getIconSVG('bot');
+        
+    // NEW: Conditionally hide close/resize buttons for in-page mode
+    const headerButtons = this.mode === 'bubble' ? `
+        <div id="chatbot-header-buttons">
+            <button id="chatbot-clear" title="Clear Chat">${this.getIconSVG('rotate-ccw')}</button>
+            <button id="chatbot-close" title="Close Chat">${this.getIconSVG('close-window')}</button>
+        </div>` : `<div id="chatbot-header-buttons"><button id="chatbot-clear" title="Clear Chat">${this.getIconSVG('rotate-ccw')}</button></div>`;
+    
+    const resizeHandle = this.mode === 'bubble' ? `<div id="chatbot-resize-handle"></div>` : '';
 
     return `
       <div id="chatbot-header">
-        <div id="chatbot-resize-handle"></div>
+        ${resizeHandle}
         <div id="chatbot-title">
           ${iconHtml}
           <span id="chatbot-header-text">${theme.windowTitle}</span>
         </div>
-        <div id="chatbot-header-buttons">
-          <button id="chatbot-clear" title="Clear Chat">${this.getIconSVG('rotate-ccw')}</button>
-          <button id="chatbot-close" title="Close Chat">${this.getIconSVG('close-window')}</button>
-        </div>
+        ${headerButtons}
       </div>
     `;
   }
@@ -202,50 +233,64 @@ class ChatbotWidget {
   applyStyles() {
     const theme = this.config.theme;
     const style = document.createElement('style');
+
+    // NEW: Mode-specific styles are handled here
+    const bubbleModeStyles = `
+      ${this.rootSelector} { position: fixed; bottom: ${theme.bottomPosition}px; right: ${theme.rightPosition}px; z-index: 2147483647; }
+      ${this.rootSelector} #chatbot-bubble { width: ${theme.bubbleSize}px; height: ${theme.bubbleSize}px; background: ${theme.bubbleColor}; border-radius: ${this.getBorderRadiusValue(theme.borderRadiusStyle)}; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.2s; }
+      ${this.rootSelector} #chatbot-window { display: none; width: ${theme.windowWidth}px; height: ${theme.windowHeight}px; position: absolute; bottom: ${theme.bubbleSize + 10}px; right: 0; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+      ${this.rootSelector} #chatbot-window.open { display: flex; }
+      ${this.rootSelector} #chatbot-header { cursor: move; }
+      ${this.rootSelector} #chatbot-resize-handle { position: absolute; top: 0; left: 0; width: 10px; height: 10px; cursor: nwse-resize; opacity: 0.2; }
+      ${this.rootSelector} #chatbot-tooltip { display: none; position: absolute; right: ${theme.bubbleSize + 10}px; bottom: 50%; transform: translateY(50%); background: ${theme.tooltipBackgroundColor}; color: ${theme.tooltipTextColor}; padding: 8px 12px; border-radius: 6px; font-size: 15px; white-space: nowrap; }
+      ${this.rootSelector} #chatbot-bubble:hover + #chatbot-tooltip { display: block; }
+    `;
+
+    const inPageModeStyles = `
+      ${this.rootSelector} { display: block; position: relative; width: 100%; height: 100%; min-height: 600px; }
+      ${this.rootSelector} #chatbot-window { width: 100%; height: 100%; position: absolute; top: 0; left: 0; box-shadow: none; border: 1px solid #e5e7eb; }
+    `;
+
     style.textContent = `
-      #chatbot-root { position: fixed; bottom: ${theme.bottomPosition}px; right: ${theme.rightPosition}px; z-index: 2147483647; font-size: 16px; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; }
-      #chatbot-root *, #chatbot-root *::before, #chatbot-root *::after { box-sizing: border-box; }
-      #chatbot-root #chatbot-bubble { width: ${theme.bubbleSize}px; height: ${theme.bubbleSize}px; background: ${theme.bubbleColor}; border-radius: ${this.getBorderRadiusValue(theme.borderRadiusStyle)}; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.2s; }
-      #chatbot-root #chatbot-window { display: none; width: ${theme.windowWidth}px; height: ${theme.windowHeight}px; background: ${theme.backgroundColorWindow}; border-radius: ${theme.windowBorderRadius}px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); flex-direction: column; overflow: hidden; position: absolute; bottom: ${theme.bubbleSize + 10}px; right: 0; }
-      #chatbot-root #chatbot-window.open { display: flex; }
-      #chatbot-root #chatbot-header { position: relative; display: flex; justify-content: space-between; align-items: center; padding: 12px; background: ${theme.backgroundColor}; color: ${theme.titleTextColor}; flex-shrink: 0; cursor: move; }
-      #chatbot-root #chatbot-resize-handle { position: absolute; top: 0; left: 0; width: 10px; height: 10px; cursor: nwse-resize; opacity: 0.2; }
-      #chatbot-root #chatbot-title { display: flex; align-items: center; gap: 8px; font-weight: 600; }
-      #chatbot-root #chatbot-header-icon-img { width: 24px; height: 24px; }
-      #chatbot-root #chatbot-header-buttons button { background: none; border: none; cursor: pointer; color: inherit; padding: 4px; opacity: 0.8; }
-      #chatbot-root #chatbot-header-buttons button:hover { opacity: 1; }
-      #chatbot-root #chatbot-messages { flex: 1; overflow-y: ${theme.showScrollbar ? 'scroll' : 'auto'}; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-      #chatbot-root .message { display: flex; gap: 8px; max-width: 85%; }
-      #chatbot-root .message .avatar { width: ${theme.avatarSize}px; height: ${theme.avatarSize}px; border-radius: ${theme.avatarBorderRadius}px; flex-shrink: 0; background-size: cover; background-position: center; }
-      #chatbot-root .message .avatar.letter { display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; }
-      #chatbot-root .message .bubble { padding: 10px 14px; border-radius: ${theme.messageBorderRadius}px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; font-size: 14px; }
-      #chatbot-root .message .bubble p { margin-top: 0; margin-bottom: 8px; }
-      #chatbot-root .message .bubble p:last-child { margin-bottom: 0; }
-      #chatbot-root .message .bubble strong, #chatbot-root .message .bubble b { font-size: inherit; font-weight: bold; }
-      #chatbot-root .message .bubble ul { padding-left: 20px; margin: 8px 0; }
-      #chatbot-root .message .bubble li { padding: 0; margin-bottom: 4px; list-style-type: disc; }
-      #chatbot-root .message.bot { align-self: flex-start; }
-      #chatbot-root .message.bot .bubble { background: ${theme.botMessageBackgroundColor}; color: ${theme.botMessageTextColor}; }
-      #chatbot-root .message.user { align-self: flex-end; flex-direction: row-reverse; }
-      #chatbot-root .message.user .bubble { background: ${theme.userMessageBackgroundColor}; color: ${theme.userMessageTextColor}; }
-      #chatbot-root #starter-prompts { padding: 0 16px 8px; display: flex; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #e5e7eb; }
-      #chatbot-root .starter-prompt { display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; font-weight: 500; border: 1px solid #e5e7eb; background: transparent; transition: all 0.2s; border-radius: 6px; font-size: 12px; height: auto; padding: 4px 8px; color: ${theme.botMessageTextColor}; cursor: pointer; }
-      #chatbot-root .starter-prompt:hover { background: #f3f4f6; }
-      #chatbot-root #input-area-wrapper { flex-shrink: 0; background: ${theme.textInputBackgroundColor}; border-top: 1px solid #e5e7eb; }
-      #chatbot-root #input-area { display: flex; align-items: flex-end; padding: 10px; }
-      #chatbot-root #chatbot-input { flex-grow: 1; border: 1px solid #ccc; border-radius: ${theme.textInputBorderRadius}px; padding: 8px; outline: none; resize: none; font: 14px ui-sans-serif, system-ui, sans-serif; color: ${theme.textInputTextColor}; background: transparent; max-height: 100px; line-height: 1.4; min-height: initial; }
-      #chatbot-root #chatbot-send { background: ${theme.sendButtonColor}; color: white; border: none; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; margin-left: 8px; }
-      #chatbot-root #character-counter { font-size: 12px; color: #65758b; padding: 0 12px 8px; text-align: right; }
-      #chatbot-root #character-counter.error { color: red; }
-      #chatbot-root #chatbot-tooltip { display: none; position: absolute; right: ${theme.bubbleSize + 10}px; bottom: 50%; transform: translateY(50%); background: ${theme.tooltipBackgroundColor}; color: ${theme.tooltipTextColor}; padding: 8px 12px; border-radius: 6px; font-size: 15px; white-space: nowrap; }
-      #chatbot-root #chatbot-bubble:hover + #chatbot-tooltip { display: block; }
-      #chatbot-root #chatbot-footer { padding: 8px; text-align: center; font-size: 12px; color: ${theme.footerTextColor}; background: ${theme.footerBackgroundColor}; border-top: 1px solid #e5e7eb; }
-      #chatbot-root #chatbot-footer p { margin: 0; line-height: 1.4; }
-      #chatbot-root .typing-indicator { display: flex; align-items: center; justify-content: center; padding: 10px; }
-      #chatbot-root .typing-indicator span { height: 8px; width: 8px; background: #9ca3af; border-radius: 50%; margin: 0 2px; animation: typing-blink 1.4s infinite both; }
-      #chatbot-root .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-      #chatbot-root .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+      /* --- Common Styles for Both Modes --- */
+      ${this.rootSelector} { font-size: 16px; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; }
+      ${this.rootSelector} *, ${this.rootSelector} *::before, ${this.rootSelector} *::after { box-sizing: border-box; }
+      ${this.rootSelector} #chatbot-window { background: ${theme.backgroundColorWindow}; border-radius: ${theme.windowBorderRadius}px; flex-direction: column; overflow: hidden; }
+      ${this.rootSelector} #chatbot-header { position: relative; display: flex; justify-content: space-between; align-items: center; padding: 12px; background: ${theme.backgroundColor}; color: ${theme.titleTextColor}; flex-shrink: 0; }
+      ${this.rootSelector} #chatbot-title { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+      ${this.rootSelector} #chatbot-header-icon-img { width: 24px; height: 24px; }
+      ${this.rootSelector} #chatbot-header-buttons button { background: none; border: none; cursor: pointer; color: inherit; padding: 4px; opacity: 0.8; }
+      ${this.rootSelector} #chatbot-header-buttons button:hover { opacity: 1; }
+      ${this.rootSelector} #chatbot-messages { flex: 1; overflow-y: ${theme.showScrollbar ? 'scroll' : 'auto'}; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+      ${this.rootSelector} .message { display: flex; gap: 8px; max-width: 85%; }
+      ${this.rootSelector} .message .avatar { width: ${theme.avatarSize}px; height: ${theme.avatarSize}px; border-radius: ${theme.avatarBorderRadius}px; flex-shrink: 0; background-size: cover; background-position: center; }
+      ${this.rootSelector} .message .avatar.letter { display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; }
+      ${this.rootSelector} .message .bubble { padding: 10px 14px; border-radius: ${theme.messageBorderRadius}px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; font-size: 14px; }
+      ${this.rootSelector} .message .bubble p { margin-top: 0; margin-bottom: 8px; }
+      ${this.rootSelector} .message .bubble p:last-child { margin-bottom: 0; }
+      ${this.rootSelector} .message.bot { align-self: flex-start; }
+      ${this.rootSelector} .message.bot .bubble { background: ${theme.botMessageBackgroundColor}; color: ${theme.botMessageTextColor}; }
+      ${this.rootSelector} .message.user { align-self: flex-end; flex-direction: row-reverse; }
+      ${this.rootSelector} .message.user .bubble { background: ${theme.userMessageBackgroundColor}; color: ${theme.userMessageTextColor}; }
+      ${this.rootSelector} #starter-prompts { padding: 0 16px 8px; display: flex; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #e5e7eb; }
+      ${this.rootSelector} .starter-prompt { display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; font-weight: 500; border: 1px solid #e5e7eb; background: transparent; transition: all 0.2s; border-radius: 6px; font-size: 12px; height: auto; padding: 4px 8px; color: ${theme.botMessageTextColor}; cursor: pointer; }
+      ${this.rootSelector} .starter-prompt:hover { background: #f3f4f6; }
+      ${this.rootSelector} #input-area-wrapper { flex-shrink: 0; background: ${theme.textInputBackgroundColor}; border-top: 1px solid #e5e7eb; }
+      ${this.rootSelector} #input-area { display: flex; align-items: flex-end; padding: 10px; }
+      ${this.rootSelector} #chatbot-input { flex-grow: 1; border: 1px solid #ccc; border-radius: ${theme.textInputBorderRadius}px; padding: 8px; outline: none; resize: none; font: 14px ui-sans-serif, system-ui, sans-serif; color: ${theme.textInputTextColor}; background: transparent; max-height: 100px; line-height: 1.4; min-height: initial; }
+      ${this.rootSelector} #chatbot-send { background: ${theme.sendButtonColor}; color: white; border: none; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; margin-left: 8px; }
+      ${this.rootSelector} #character-counter { font-size: 12px; color: #65758b; padding: 0 12px 8px; text-align: right; }
+      ${this.rootSelector} #character-counter.error { color: red; }
+      ${this.rootSelector} #chatbot-footer { padding: 8px; text-align: center; font-size: 12px; color: ${theme.footerTextColor}; background: ${theme.footerBackgroundColor}; border-top: 1px solid #e5e7eb; }
+      ${this.rootSelector} #chatbot-footer p { margin: 0; line-height: 1.4; }
+      ${this.rootSelector} .typing-indicator { display: flex; align-items: center; justify-content: center; padding: 10px; }
+      ${this.rootSelector} .typing-indicator span { height: 8px; width: 8px; background: #9ca3af; border-radius: 50%; margin: 0 2px; animation: typing-blink 1.4s infinite both; }
+      ${this.rootSelector} .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+      ${this.rootSelector} .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
       @keyframes typing-blink { 0% { opacity: 0.2; } 20% { opacity: 1; } 100% { opacity: 0.2; } }
+
+      /* --- Mode-Specific Styles --- */
+      ${this.mode === 'bubble' ? bubbleModeStyles : inPageModeStyles}
     `;
     document.head.appendChild(style);
     if (theme.customCSS) this.injectCustomCSS(theme.customCSS);
@@ -253,6 +298,7 @@ class ChatbotWidget {
 
   updateBubbleIcon() {
     const bubbleElement = document.getElementById('chatbot-bubble');
+    if (!bubbleElement) return; // NEW: Guard clause for in-page mode
     const theme = this.config.theme;
     if (this.isOpen) {
       bubbleElement.innerHTML = this.getIconSVG('close');
@@ -273,7 +319,6 @@ class ChatbotWidget {
     this.messages.forEach(msg => {
       const messageEl = document.createElement('div');
       messageEl.className = `message ${msg.type}`;
-      
       let avatarHtml = '';
       if ((msg.type === 'bot' && theme.showBotAvatar) || (msg.type === 'user' && theme.showUserAvatar)) {
         const avatarUrl = msg.type === 'bot' ? theme.botAvatarUrl : theme.userAvatarUrl;
@@ -285,10 +330,8 @@ class ChatbotWidget {
           avatarHtml = `<div class="avatar letter" style="background-color: ${bgColor}">${letter}</div>`;
         }
       }
-      
       const bubble = document.createElement('div');
       bubble.className = 'bubble';
-
       if (msg.thinking) {
         bubble.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
       } else if (theme.renderHtml) {
@@ -296,7 +339,6 @@ class ChatbotWidget {
       } else {
         bubble.textContent = msg.content;
       }
-      
       messageEl.innerHTML = avatarHtml;
       messageEl.appendChild(bubble);
       messagesContainer.appendChild(messageEl);
@@ -320,10 +362,24 @@ class ChatbotWidget {
   
   // --- Event Handling ---
   addEventListeners() {
-    document.getElementById('chatbot-bubble').addEventListener('click', () => this.toggleChat());
-    document.getElementById('chatbot-close').addEventListener('click', () => this.toggleChat(false));
-    document.getElementById('chatbot-clear').addEventListener('click', () => this.clearChat());
+    // NEW: Add bubble-specific listeners only in bubble mode
+    if (this.mode === 'bubble') {
+        document.getElementById('chatbot-bubble').addEventListener('click', () => this.toggleChat());
+        document.getElementById('chatbot-close').addEventListener('click', () => this.toggleChat(false));
+        const bubble = document.getElementById('chatbot-bubble');
+        const tooltip = document.getElementById('chatbot-tooltip');
+        if (tooltip) {
+            bubble.addEventListener('mouseenter', () => { if (!this.isOpen) tooltip.style.display = 'block'; });
+            bubble.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+        }
+        const resizeHandle = document.getElementById('chatbot-resize-handle');
+        const header = document.getElementById('chatbot-header');
+        if(resizeHandle) resizeHandle.addEventListener('mousedown', this.onResizeStart.bind(this));
+        if(header) header.addEventListener('mousedown', this.onDragStart.bind(this));
+    }
     
+    // Common listeners for both modes
+    document.getElementById('chatbot-clear').addEventListener('click', () => this.clearChat());
     const input = document.getElementById('chatbot-input');
     input.addEventListener('input', e => { 
         this.inputValue = e.target.value; 
@@ -332,9 +388,7 @@ class ChatbotWidget {
         e.target.style.height = (e.target.scrollHeight) + 'px';
     });
     input.addEventListener('keypress', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.sendMessage(); } });
-    
     document.getElementById('chatbot-send').addEventListener('click', () => this.sendMessage());
-    
     document.getElementById('starter-prompts').addEventListener('click', e => {
       if (e.target.classList.contains('starter-prompt')) {
         this.inputValue = e.target.textContent;
@@ -342,37 +396,22 @@ class ChatbotWidget {
       }
     });
     
-    const bubble = document.getElementById('chatbot-bubble');
-    const tooltip = document.getElementById('chatbot-tooltip');
-    if (tooltip) {
-        bubble.addEventListener('mouseenter', () => { if (!this.isOpen) tooltip.style.display = 'block'; });
-        bubble.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
-    }
-
-    const resizeHandle = document.getElementById('chatbot-resize-handle');
-    const header = document.getElementById('chatbot-header');
-    resizeHandle.addEventListener('mousedown', this.onResizeStart.bind(this));
-    header.addEventListener('mousedown', this.onDragStart.bind(this));
-    
     window.addEventListener('pageshow', (event) => {
-        if (event.persisted) {
-            this.reinitStateAfterBfcache();
-        }
+        if (event.persisted) { this.reinitStateAfterBfcache(); }
     });
   }
   
   toggleChat(forceOpen = null) {
+    // NEW: This function is only relevant for bubble mode
+    if (this.mode !== 'bubble') return;
     this.isOpen = forceOpen !== null ? forceOpen : !this.isOpen;
     document.getElementById('chatbot-window').classList.toggle('open', this.isOpen);
     this.updateBubbleIcon();
-    
     localStorage.setItem(`chatbot_open_${this.sessionId}`, this.isOpen);
-
     const tooltip = document.getElementById('chatbot-tooltip');
     if (tooltip && this.isOpen) {
         tooltip.style.display = 'none';
     }
-
     if (this.isOpen && this.config.theme.autoFocusInput) {
       setTimeout(() => document.getElementById('chatbot-input').focus(), 100);
     }
@@ -401,9 +440,11 @@ class ChatbotWidget {
       console.log('Page loaded from back-forward cache. Re-initializing chatbot state.');
       this.loadMessages();
       this.updateMessages();
-      const wasOpen = localStorage.getItem(`chatbot_open_${this.sessionId}`) === 'true';
-      if (this.isOpen !== wasOpen) {
-          this.toggleChat(wasOpen);
+      if (this.mode === 'bubble') {
+          const wasOpen = localStorage.getItem(`chatbot_open_${this.sessionId}`) === 'true';
+          if (this.isOpen !== wasOpen) {
+              this.toggleChat(wasOpen);
+          }
       }
   }
 
