@@ -40,6 +40,7 @@ export const ChatbotBuilder = ({ config: propConfig, updateConfig: propUpdateCon
       embedCode = `<script src="https://chatbot.headstartmarketingplatform.com/chatbot-embed.js"></script>
 <script>
 Chatbot.init({
+  mode: 'bubble',
   chatbotId: "${chatbotIdToUse}",
   routingUrl: "https://jppjdfmeblnmfdowpumn.supabase.co/functions/v1/chat",${config.visitorCookieName ? `\n  visitorCookieName: "${config.visitorCookieName}",` : ''}
   metadata: {
@@ -53,9 +54,9 @@ Chatbot.init({
 </script>`;
     } else {
       embedCode = `<script src="https://chatbot.headstartmarketingplatform.com/chatbot-embed.js"></script>
-<kmtbot-inpage></kmtbot-inpage>
 <script>
 Chatbot.init({
+  mode: 'inpage',
   chatbotId: "${chatbotIdToUse}",
   routingUrl: "https://jppjdfmeblnmfdowpumn.supabase.co/functions/v1/chat",${config.visitorCookieName ? `\n  visitorCookieName: "${config.visitorCookieName}",` : ''}
   metadata: {
@@ -283,6 +284,7 @@ Chatbot.init({
 `<script src="https://chatbot.headstartmarketingplatform.com/chatbot-embed.js"></script>
 <script>
 Chatbot.init({
+  mode: 'bubble',
   chatbotId: "${config.chatbotId || chatbotId || 'your-unique-chatbot-id'}",
   routingUrl: "https://jppjdfmeblnmfdowpumn.supabase.co/functions/v1/chat",${config.visitorCookieName ? `\n  visitorCookieName: "${config.visitorCookieName}",` : ''}
   metadata: {
@@ -297,6 +299,7 @@ Chatbot.init({
 `<script src="https://chatbot.headstartmarketingplatform.com/chatbot-embed.js"></script>
 <script>
 Chatbot.init({
+  mode: 'inpage',
   chatbotId: "${config.chatbotId || chatbotId || 'your-unique-chatbot-id'}",
   routingUrl: "https://jppjdfmeblnmfdowpumn.supabase.co/functions/v1/chat",${config.visitorCookieName ? `\n  visitorCookieName: "${config.visitorCookieName}",` : ''}
   metadata: {
