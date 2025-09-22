@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Plus, Bot, MoreVertical, Edit, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Bot, MoreVertical, Edit, Trash2, Copy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import AuthGuard from "@/components/AuthGuard";
 import UserProfileDropdown from "@/components/UserProfileDropdown";
@@ -26,10 +26,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import CopyChatbotModal from "@/components/modals/CopyChatbotModal";
 
 interface Chatbot {
   id: string;
   name: string;
+  config: any;
+  client_id: string;
   created_at: string;
   updated_at: string;
 }
@@ -50,6 +53,8 @@ const ClientChatbots = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [chatbotToDelete, setChatbotToDelete] = useState<Chatbot | null>(null);
   const [deleteConfirmName, setDeleteConfirmName] = useState("");
+  const [isCopyDialogOpen, setIsCopyDialogOpen] = useState(false);
+  const [chatbotToCopy, setChatbotToCopy] = useState<Chatbot | null>(null);
 
   useEffect(() => {
     if (clientId && user) {
@@ -94,6 +99,16 @@ const ClientChatbots = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleCopyClick = (chatbot: Chatbot) => {
+    setChatbotToCopy(chatbot);
+    setIsCopyDialogOpen(true);
+  };
+
+  const handleCopySuccess = (newClientId: string) => {
+    // Navigate to the destination client's chatbot page
+    navigate(`/clients/${newClientId}/chatbots`);
   };
 
   const handleCreateChatbot = () => {
@@ -240,6 +255,13 @@ const ClientChatbots = () => {
                           Edit Chatbot
                         </DropdownMenuItem>
                         <DropdownMenuItem
+                          onClick={() => handleCopyClick(chatbot)}
+                          className="gap-2"
+                        >
+                          <Copy className="h-4 w-4" />
+                          Copy Chatbot
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
                           onClick={() => handleDeleteClick(chatbot)}
                           className="gap-2 text-destructive"
                         >
@@ -293,6 +315,15 @@ const ClientChatbots = () => {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+
+          <CopyChatbotModal
+            isOpen={isCopyDialogOpen}
+            onClose={() => setIsCopyDialogOpen(false)}
+            chatbot={chatbotToCopy}
+            currentClientId={clientId || ""}
+            userId={user?.id || ""}
+            onCopySuccess={handleCopySuccess}
+          />
         </div>
       </div>
     </AuthGuard>
