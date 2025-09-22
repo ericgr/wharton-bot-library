@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Plus, Bot, MoreVertical, Edit, Trash2, Copy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import AuthGuard from "@/components/AuthGuard";
 import UserProfileDropdown from "@/components/UserProfileDropdown";
 import {
@@ -107,8 +108,13 @@ const ClientChatbots = () => {
   };
 
   const handleCopySuccess = (newClientId: string) => {
-    // Navigate to the destination client's chatbot page
-    navigate(`/clients/${newClientId}/chatbots`);
+    if (newClientId === clientId) {
+      // If copying to the same client, refresh the current page
+      loadClientAndChatbots();
+    } else {
+      // Navigate to the destination client's chatbot page
+      navigate(`/clients/${newClientId}/chatbots`);
+    }
   };
 
   const handleCreateChatbot = () => {
@@ -231,12 +237,19 @@ const ClientChatbots = () => {
                   style={{ background: 'var(--gradient-chatbot)' }}
                 >
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle
-                      className="text-lg font-semibold truncate flex-1 mr-2"
-                      onClick={() => handleEditChatbot(chatbot.id)}
-                    >
-                      {chatbot.name}
-                    </CardTitle>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <CardTitle
+                          className="text-lg font-semibold truncate flex-1 mr-2 cursor-pointer"
+                          onClick={() => handleEditChatbot(chatbot.id)}
+                        >
+                          {chatbot.name}
+                        </CardTitle>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{chatbot.name}</p>
+                      </TooltipContent>
+                    </Tooltip>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
