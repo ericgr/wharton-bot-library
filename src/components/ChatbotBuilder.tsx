@@ -37,7 +37,8 @@ export const ChatbotBuilder = ({ config: propConfig, updateConfig: propUpdateCon
     
     let embedCode;
     if (mode === "popup") {
-      embedCode = `<script src="https://chatbot.headstartmarketingplatform.com/chatbot-embed.js"></script>
+      embedCode = `<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.11/dist/purify.min.js"></script>
+<script src="https://chatbot.headstartmarketingplatform.com/chatbot-embed.js"></script>
 <script>
 Chatbot.init({
   mode: 'bubble',
@@ -53,7 +54,8 @@ Chatbot.init({
 });
 </script>`;
     } else {
-      embedCode = `<script src="https://chatbot.headstartmarketingplatform.com/chatbot-embed.js"></script>
+      embedCode = `<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.11/dist/purify.min.js"></script>
+<script src="https://chatbot.headstartmarketingplatform.com/chatbot-embed.js"></script>
 <script>
 Chatbot.init({
   mode: 'inpage',
@@ -281,7 +283,8 @@ Chatbot.init({
                        <div className="relative">
                          <pre className="bg-slate-900 text-green-400 p-4 rounded-lg text-sm overflow-auto max-h-96">
 {mode === "popup" ? 
-`<script src="https://chatbot.headstartmarketingplatform.com/chatbot-embed.js"></script>
+`<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.11/dist/purify.min.js"></script>
+<script src="https://chatbot.headstartmarketingplatform.com/chatbot-embed.js"></script>
 <script>
 Chatbot.init({
   mode: 'bubble',
@@ -296,7 +299,8 @@ Chatbot.init({
   theme: ${JSON.stringify(config, null, 2)}
 });
 </script>` :
-`<script src="https://chatbot.headstartmarketingplatform.com/chatbot-embed.js"></script>
+`<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.11/dist/purify.min.js"></script>
+<script src="https://chatbot.headstartmarketingplatform.com/chatbot-embed.js"></script>
 <script>
 Chatbot.init({
   mode: 'inpage',
