@@ -1,5 +1,5 @@
 /**
- * Custom Chatbot Embed Script V19 (Dual-Mode: Bubble & In-Page)
+ * Custom Chatbot Embed Script V20 (Payload & Sanitizer Ready)
  * A comprehensive embeddable chatbot widget with full feature and theming support.
  */
 class ChatbotWidget {
@@ -126,8 +126,6 @@ class ChatbotWidget {
   }
 
   // --- UI Creation ---
-
-  // NEW: Function to create the floating bubble chat
   createBubbleChat() {
     this.container = document.createElement('div');
     this.container.id = 'chatbot-root';
@@ -140,7 +138,6 @@ class ChatbotWidget {
     this.addEventListeners();
   }
   
-  // NEW: Function to create the in-page embedded chat
   createInPageChat() {
     this.container = document.querySelector('kmtbot-inpage');
     if (!this.container) {
@@ -152,7 +149,6 @@ class ChatbotWidget {
     this.applyStyles();
     this.addEventListeners();
 
-    // Make the window visible by default for in-page mode
     const windowEl = document.getElementById('chatbot-window');
     windowEl.style.display = 'flex';
   }
@@ -198,7 +194,6 @@ class ChatbotWidget {
         ? `<img src="${theme.customIconUrl}" alt="Chatbot Icon" id="chatbot-header-icon-img" />`
         : this.getIconSVG('bot');
         
-    // NEW: Conditionally hide close/resize buttons for in-page mode
     const headerButtons = this.mode === 'bubble' ? `
         <div id="chatbot-header-buttons">
             <button id="chatbot-clear" title="Clear Chat">${this.getIconSVG('rotate-ccw')}</button>
@@ -233,8 +228,6 @@ class ChatbotWidget {
   applyStyles() {
     const theme = this.config.theme;
     const style = document.createElement('style');
-
-    // NEW: Mode-specific styles are handled here
     const bubbleModeStyles = `
       ${this.rootSelector} { position: fixed; bottom: ${theme.bottomPosition}px; right: ${theme.rightPosition}px; z-index: 2147483647; }
       ${this.rootSelector} #chatbot-bubble { width: ${theme.bubbleSize}px; height: ${theme.bubbleSize}px; background: ${theme.bubbleColor}; border-radius: ${this.getBorderRadiusValue(theme.borderRadiusStyle)}; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.2s; }
@@ -245,14 +238,11 @@ class ChatbotWidget {
       ${this.rootSelector} #chatbot-tooltip { display: none; position: absolute; right: ${theme.bubbleSize + 10}px; bottom: 50%; transform: translateY(50%); background: ${theme.tooltipBackgroundColor}; color: ${theme.tooltipTextColor}; padding: 8px 12px; border-radius: 6px; font-size: 15px; white-space: nowrap; }
       ${this.rootSelector} #chatbot-bubble:hover + #chatbot-tooltip { display: block; }
     `;
-
     const inPageModeStyles = `
       ${this.rootSelector} { display: block; position: relative; width: 100%; height: 100%; min-height: 600px; }
       ${this.rootSelector} #chatbot-window { width: 100%; height: 100%; position: absolute; top: 0; left: 0; box-shadow: none; border: 1px solid #e5e7eb; }
     `;
-
     style.textContent = `
-      /* --- Common Styles for Both Modes --- */
       ${this.rootSelector} { font-size: 16px; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; }
       ${this.rootSelector} *, ${this.rootSelector} *::before, ${this.rootSelector} *::after { box-sizing: border-box; }
       ${this.rootSelector} #chatbot-window { background: ${theme.backgroundColorWindow}; border-radius: ${theme.windowBorderRadius}px; flex-direction: column; overflow: hidden; }
@@ -288,8 +278,6 @@ class ChatbotWidget {
       ${this.rootSelector} .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
       ${this.rootSelector} .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
       @keyframes typing-blink { 0% { opacity: 0.2; } 20% { opacity: 1; } 100% { opacity: 0.2; } }
-
-      /* --- Mode-Specific Styles --- */
       ${this.mode === 'bubble' ? bubbleModeStyles : inPageModeStyles}
     `;
     document.head.appendChild(style);
@@ -298,7 +286,7 @@ class ChatbotWidget {
 
   updateBubbleIcon() {
     const bubbleElement = document.getElementById('chatbot-bubble');
-    if (!bubbleElement) return; // NEW: Guard clause for in-page mode
+    if (!bubbleElement) return;
     const theme = this.config.theme;
     if (this.isOpen) {
       bubbleElement.innerHTML = this.getIconSVG('close');
@@ -315,7 +303,6 @@ class ChatbotWidget {
     if (!messagesContainer) return;
     messagesContainer.innerHTML = '';
     const theme = this.config.theme;
-
     this.messages.forEach(msg => {
       const messageEl = document.createElement('div');
       messageEl.className = `message ${msg.type}`;
@@ -362,7 +349,6 @@ class ChatbotWidget {
   
   // --- Event Handling ---
   addEventListeners() {
-    // NEW: Add bubble-specific listeners only in bubble mode
     if (this.mode === 'bubble') {
         document.getElementById('chatbot-bubble').addEventListener('click', () => this.toggleChat());
         document.getElementById('chatbot-close').addEventListener('click', () => this.toggleChat(false));
@@ -378,7 +364,6 @@ class ChatbotWidget {
         if(header) header.addEventListener('mousedown', this.onDragStart.bind(this));
     }
     
-    // Common listeners for both modes
     document.getElementById('chatbot-clear').addEventListener('click', () => this.clearChat());
     const input = document.getElementById('chatbot-input');
     input.addEventListener('input', e => { 
@@ -402,7 +387,6 @@ class ChatbotWidget {
   }
   
   toggleChat(forceOpen = null) {
-    // NEW: This function is only relevant for bubble mode
     if (this.mode !== 'bubble') return;
     this.isOpen = forceOpen !== null ? forceOpen : !this.isOpen;
     document.getElementById('chatbot-window').classList.toggle('open', this.isOpen);
