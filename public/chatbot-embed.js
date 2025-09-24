@@ -191,9 +191,9 @@ class ChatbotWidget {
   createHeader() {
     const theme = this.config.theme;
     let iconHtml = theme.customIconUrl 
-        ? `<img src="${theme.customIconUrl}" alt="Chatbot Icon" id="chatbot-header-icon-img" />`
-        : this.getIconSVG('bot');
-        
+      ? `<img src="${theme.customIconUrl}" alt="Chatbot Icon" id="chatbot-header-icon-img" />`
+      : this.getIconSVG('bot');
+      
     const headerButtons = this.mode === 'bubble' ? `
         <div id="chatbot-header-buttons">
             <button id="chatbot-clear" title="Clear Chat">${this.getIconSVG('rotate-ccw')}</button>
@@ -521,8 +521,17 @@ class ChatbotWidget {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'API Error');
 
-      const botResponse = data.output || 'Sorry, I encountered an issue.';
+      // MODIFICATION: Look for 'text' key instead of 'output'
+      const botResponse = data.text || 'Sorry, I encountered an issue.';
       this.messages.push({ type: 'bot', content: botResponse });
+      
+      // MODIFICATION: Add payload handling
+      if (data.payload && data.payload.type === 'internal_ui' && data.payload.data.component_type === 'video') {
+        const videoUrl = data.payload.data.url;
+        const videoContent = `<video width="100%" controls src="${videoUrl}" style="margin-top: 8px; border-radius: 6px;"></video>`;
+        this.messages.push({ type: 'bot', content: videoContent });
+      }
+
       this.updateMessages();
     } catch (error) {
       console.error('Webhook Error:', error);
