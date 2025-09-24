@@ -514,7 +514,8 @@ class ChatbotWidget {
       const response = await fetch(`${this.config.routingUrl}/${this.config.chatbotId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chatInput: message, sessionId: this.sessionId, ...this.config.metadata })
+        // New Line
+        body: JSON.stringify({ chatbotId: this.config.chatbotId, chatInput: message, sessionId: this.sessionId, ...this.config.metadata })
       });
       
       this.messages = this.messages.filter(m => !m.thinking);
