@@ -1,5 +1,5 @@
 /**
- * Custom Chatbot Embed Script V20 (Payload & Sanitizer Ready)
+ * Custom Chatbot Embed Script V21 (With Interim Messaging)
  * A comprehensive embeddable chatbot widget with full feature and theming support.
  */
 class ChatbotWidget {
@@ -11,9 +11,8 @@ class ChatbotWidget {
     this.container = null;
     this.inputValue = '';
     this.sessionId = null;
-    // NEW: Mode properties
-    this.mode = 'bubble'; // Default mode
-    this.rootSelector = '#chatbot-root'; // Default CSS selector for the root element
+    this.mode = 'bubble'; 
+    this.rootSelector = '#chatbot-root'; 
     // Drag/Resize properties
     this.isResizing = false;
     this.isDragging = false;
@@ -23,6 +22,16 @@ class ChatbotWidget {
     this.initialHeight = 0;
     this.dragOffsetX = 0;
     this.dragOffsetY = 0;
+    
+    // NEW: Properties for interim messaging while waiting for a response
+    this.interimMessageInterval = null;
+    this.interimMessages = [
+        'Processing your request...',
+        'Accessing the WEMBA knowledge base...',
+        'Analyzing the most relevant information...',
+        'Synthesizing the answer...',
+        'Finalizing your response...'
+    ];
   }
 
   // --- Core Initialization ---
@@ -30,24 +39,20 @@ class ChatbotWidget {
     this.mergeConfig(options);
     this.initializeSession();
 
-    // NEW: Determine mode and set the root CSS selector
     this.mode = this.config.mode || 'bubble';
     this.rootSelector = this.mode === 'inpage' ? 'kmtbot-inpage' : '#chatbot-root';
 
-    // NEW: Conditional rendering based on mode
     if (this.mode === 'inpage') {
       this.createInPageChat();
     } else {
       this.createBubbleChat();
     }
 
-    // Add the visitor ID to the metadata if a cookie name is provided
     if (this.config.visitorCookieName) {
       this.config.metadata = this.config.metadata || {};
       this.config.metadata.cookie_visitor_id = this.getCookieByName(this.config.visitorCookieName);
     }
 
-    // Load messages and render them
     this.loadMessages();
     if (this.messages.length === 0) {
       const initialMessage = this.config.theme.welcomeMessage || 'Hello! How can I help you today?';
@@ -56,7 +61,6 @@ class ChatbotWidget {
     this.updateMessages();
     this.updateCharacterCounter();
     
-    // NEW: State restoration logic specific to bubble mode
     if (this.mode === 'bubble') {
         const wasOpen = localStorage.getItem(`chatbot_open_${this.sessionId}`) === 'true';
         if (wasOpen) {
@@ -112,7 +116,7 @@ class ChatbotWidget {
       footerText: 'Powered by Wharton',
       customCSS: '',
       webhookUrl: null,
-      customErrorMessage: 'Sorry, I couldn\'t connect. Please try again.',
+      customErrorMessage: 'I\'m sorry. Something has gone wrong. Please try asking your question again.',
     };
 
     const tempConfig = { ...this.config, ...options };
@@ -260,6 +264,8 @@ class ChatbotWidget {
       ${this.rootSelector} .message .bubble p:last-child { margin-bottom: 0; }
       ${this.rootSelector} .message.bot { align-self: flex-start; }
       ${this.rootSelector} .message.bot .bubble { background: ${theme.botMessageBackgroundColor}; color: ${theme.botMessageTextColor}; }
+      /* NEW: Style for the interim status messages */
+      ${this.rootSelector} .message.bot .bubble.interim { color: #6b7280; font-style: italic; }
       ${this.rootSelector} .message.user { align-self: flex-end; flex-direction: row-reverse; }
       ${this.rootSelector} .message.user .bubble { background: ${theme.userMessageBackgroundColor}; color: ${theme.userMessageTextColor}; }
       ${this.rootSelector} #starter-prompts { padding: 0 16px 8px; display: flex; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #e5e7eb; }
@@ -319,13 +325,21 @@ class ChatbotWidget {
       }
       const bubble = document.createElement('div');
       bubble.className = 'bubble';
+      
+      // MODIFIED: Logic to handle displaying interim text messages or the typing indicator
       if (msg.thinking) {
-        bubble.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+        if (msg.content) {
+            bubble.textContent = msg.content;
+            bubble.classList.add('interim'); // Add class for special styling
+        } else {
+            bubble.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+        }
       } else if (theme.renderHtml) {
         bubble.innerHTML = msg.content || '';
       } else {
         bubble.textContent = msg.content;
       }
+
       messageEl.innerHTML = avatarHtml;
       messageEl.appendChild(bubble);
       messagesContainer.appendChild(messageEl);
@@ -404,9 +418,26 @@ class ChatbotWidget {
   sendMessage() {
     if (!this.inputValue.trim() || (this.config.theme.maxCharacters > 0 && this.inputValue.length > this.config.theme.maxCharacters)) return;
     this.messages.push({ type: 'user', content: this.inputValue });
-    this.messages.push({ type: 'bot', thinking: true, content: '' });
+    this.messages.push({ type: 'bot', thinking: true, content: '' }); // Initial empty thinking message
     this.updateMessages();
     this.sendToWebhook(this.inputValue);
+
+    // NEW: Start the interim message timer
+    if (this.interimMessageInterval) clearInterval(this.interimMessageInterval);
+
+    let messageIndex = 0;
+    this.interimMessageInterval = setInterval(() => {
+        const thinkingMessage = this.messages.find(m => m.thinking);
+        if (thinkingMessage && messageIndex < this.interimMessages.length) {
+            thinkingMessage.content = this.interimMessages[messageIndex];
+            this.updateMessages(); // Re-render with the new status text
+            messageIndex++;
+        } else {
+            clearInterval(this.interimMessageInterval);
+            this.interimMessageInterval = null;
+        }
+    }, 3000);
+
     const input = document.getElementById('chatbot-input');
     this.inputValue = '';
     input.value = '';
@@ -514,21 +545,34 @@ class ChatbotWidget {
       const response = await fetch(`${this.config.routingUrl}/${this.config.chatbotId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        // New Line
         body: JSON.stringify({ chatbotId: this.config.chatbotId, chatInput: message, sessionId: this.sessionId, ...this.config.metadata })
       });
       
-      this.messages = this.messages.filter(m => !m.thinking);
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'API Error');
+      // NEW: Stop the interim messages as soon as the real response arrives
+      if (this.interimMessageInterval) {
+          clearInterval(this.interimMessageInterval);
+          this.interimMessageInterval = null;
+      }
 
-      // MODIFICATION: Look for 'text' key instead of 'output'
-      const botResponse = data.text || 'Sorry, I encountered an issue.';
+      this.messages = this.messages.filter(m => !m.thinking); // Remove the thinking/interim message
+      
+      // MODIFIED: Handle potential non-JSON or empty responses gracefully
+      const responseText = await response.text();
+      if (!responseText) {
+          throw new Error('Empty response from server');
+      }
+      const data = JSON.parse(responseText);
+
+      if (!response.ok) throw new Error(data.error || 'API Error');
+      
+      // MODIFICATION: Check for array and access the first element if needed
+      const responseData = Array.isArray(data) ? data[0] : data;
+
+      const botResponse = responseData.text || 'Sorry, I encountered an issue.';
       this.messages.push({ type: 'bot', content: botResponse });
       
-      // MODIFICATION: Add payload handling
-      if (data.payload && data.payload.type === 'internal_ui' && data.payload.data.component_type === 'video') {
-        const videoUrl = data.payload.data.url;
+      if (responseData.payload && responseData.payload.type === 'internal_ui' && responseData.payload.data.component_type === 'video') {
+        const videoUrl = responseData.payload.data.url;
         const videoContent = `<video width="100%" controls src="${videoUrl}" style="margin-top: 8px; border-radius: 6px;"></video>`;
         this.messages.push({ type: 'bot', content: videoContent });
       }
@@ -536,6 +580,13 @@ class ChatbotWidget {
       this.updateMessages();
     } catch (error) {
       console.error('Webhook Error:', error);
+
+      // NEW: Also stop the interim messages if an error occurs
+      if (this.interimMessageInterval) {
+          clearInterval(this.interimMessageInterval);
+          this.interimMessageInterval = null;
+      }
+
       this.messages = this.messages.filter(m => !m.thinking);
       this.messages.push({ type: 'bot', content: this.config.theme.customErrorMessage });
       this.updateMessages();
@@ -576,7 +627,7 @@ class ChatbotWidget {
     const icons = {
       'bot': `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${iconColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>`,
       'message-circle': `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/></svg>`,
-      'close': `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`,
+      'close': `<svg xmlns="http://www.w.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`,
       'send': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>`,
       'rotate-ccw': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`,
       'close-window': `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`
